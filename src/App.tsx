@@ -24,6 +24,7 @@ import {
   Save,
   Trash2
 } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 import { SupportedLocale, SimulationResult, HistoryItem } from './types';
 import { localeDirection, localeLabels, Locale } from './config/i18n.config';
 import { getDictionary, Dictionary } from './lib/dictionary';
@@ -1107,6 +1108,7 @@ export default function App() {
           </div>
         </div>
       )}
+      <Analytics />
     </div>
   );
 }
