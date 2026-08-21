@@ -1,0 +1,35 @@
+{
+  "navigation": {
+    "home": "الطرفية التحليلية",
+    "scenarios": "السيناريوهات",
+    "about": "المعمارية"
+  },
+  "home": {
+    "badge": "محرك المحاكاة الكمومية للواقع البديل v2.4",
+    "hero_title": "ماذا لو تغيّر مسار التاريخ أو قراراتك؟",
+    "hero_subtitle": "منصة تحليلية فائقة الدقة لحساب التفرعات السببية، والتحولات الجيوسياسية، والنتائج التاريخية الافتراضية مدعومة بنماذج Gemini.",
+    "search_placeholder": "ماذا لو لم تسقط الأندلس واستمرت كقوة علمية وصناعية؟",
+    "analyze_button": "بدء المحاكاة",
+    "simulating_button": "جارٍ احتساب المتجهات...",
+    "trending_label": "سيناريوهات مقترحة:",
+    "preset_1": "بقاء مكتبة الإسكندرية",
+    "preset_2": "ظهور الذكاء الاصطناعي في 1980",
+    "preset_3": "استمرار الصحراء الكبرى خضراء",
+    "badges": {
+      "ai_models": "تحليل متعدد المتجهات",
+      "realtime": "رسم بياني سببي محكم",
+      "historical": "+10,000 بذرة تاريخية"
+    }
+  },
+  "dashboard": {
+    "summary_label": "ملخص السيناريو التفرعي (EXECUTIVE SUMMARY)",
+    "risk_label": "مؤشر المخاطر والتقلب",
+    "optimistic_label": "المسار الإيجابي المتوقع (OPTIMISTIC BRANCH)",
+    "pessimistic_label": "المسار السلبي والتعثرات (PESSIMISTIC CASCADE)",
+    "temporal_label": "التأثير الزمني المتدرج (TEMPORAL IMPACT HORIZON)",
+    "contingency_label": "خطة الطوارئ والإجراءات التكيفية (CONTINGENCY PLAN)",
+    "one_month": "بعد شهر واحد",
+    "one_year": "بعد سنة واحدة",
+    "five_years": "بعد 5 سنوات"
+  }
+}

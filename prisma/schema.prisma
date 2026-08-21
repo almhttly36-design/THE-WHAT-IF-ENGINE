@@ -1,0 +1,42 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Scenario {
+  id                  String   @id @default(uuid()) @db.Uuid
+  slug                String   @db.VarChar(255)
+  language            String   @db.VarChar(10) // "ar", "en", "es", "fr"
+  user_prompt         String   @db.Text
+  search_intent_title String   @db.VarChar(255) // SEO-optimized title
+  scenario_summary    String   @db.Text
+  risk_score          Int      @default(50)     // Scale: 0 - 100
+  risk_category       String   @db.VarChar(50)  // "LOW", "MODERATE", "CRITICAL", "EXISTENTIAL"
+  optimistic_outcome  String   @db.Text
+  pessimistic_outcome String   @db.Text
+  contingency_plan    Json     // Array of actionable mitigation steps
+  temporal_impact     Json     // Timeline projections: { one_month, one_year, five_years }
+  
+  // Programmatic SEO & Analytics
+  view_count          Int      @default(0)
+  is_published        Boolean  @default(true)
+  
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  // Compound unique constraint to ensure unique localized URLs: e.g. (/ar/scenarios/gold-invest vs /en/scenarios/gold-invest)
+  @@unique([slug, language], name: "slug_language_unique")
+  
+  // High-performance search & indexing
+  @@index([language])
+  @@index([slug])
+  @@index([createdAt(sort: Desc)])
+  @@map("scenarios")
+}

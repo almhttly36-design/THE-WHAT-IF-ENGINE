@@ -1,0 +1,35 @@
+{
+  "navigation": {
+    "home": "Terminal",
+    "scenarios": "Scenarios",
+    "about": "Architecture"
+  },
+  "home": {
+    "badge": "QUANTUM COUNTERFACTUAL ENGINE v2.4",
+    "hero_title": "What If History or Your Decisions Shifted?",
+    "hero_subtitle": "An advanced analytical engine computing causal divergence, macroeconomic branching, and hypothetical outcomes powered by Gemini.",
+    "search_placeholder": "What if the Library of Alexandria never burned and science accelerated 500 years?",
+    "analyze_button": "Simulate Reality",
+    "simulating_button": "Computing Branch Vectors...",
+    "trending_label": "Active Seeds:",
+    "preset_1": "Library of Alexandria survives",
+    "preset_2": "AI singularity in 1980",
+    "preset_3": "Green Sahara continued",
+    "badges": {
+      "ai_models": "Multi-Vector LLM Reasoning",
+      "realtime": "Deterministic Causal Graph",
+      "historical": "10,000+ Historical Seeds"
+    }
+  },
+  "dashboard": {
+    "summary_label": "Branch Summary (EXECUTIVE SUMMARY)",
+    "risk_label": "Risk & Volatility Index",
+    "optimistic_label": "Optimistic Branch Outcome",
+    "pessimistic_label": "Pessimistic Cascade Failure",
+    "temporal_label": "Temporal Impact Horizon",
+    "contingency_label": "Contingency & Mitigation Plan",
+    "one_month": "1 Month Horizon",
+    "one_year": "1 Year Horizon",
+    "five_years": "5 Years Horizon"
+  }
+}

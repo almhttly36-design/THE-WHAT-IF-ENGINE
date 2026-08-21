@@ -1,0 +1,6 @@
+{
+  "name": "The What If Engine",
+  "description": "An advanced analytical counterfactual simulation engine computing hypothetical scenarios, causal divergence, and temporal timelines powered by Gemini.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

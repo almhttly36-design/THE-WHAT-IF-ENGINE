@@ -1,0 +1,35 @@
+{
+  "navigation": {
+    "home": "Terminal",
+    "scenarios": "Escenarios",
+    "about": "Arquitectura"
+  },
+  "home": {
+    "badge": "MOTOR DE SIMULACIÓN CUÁNTICA v2.4",
+    "hero_title": "¿Qué pasaría si la historia o tus decisiones cambiaran?",
+    "hero_subtitle": "Un motor analítico avanzado que calcula divergencias causales y ramificaciones históricas con Gemini.",
+    "search_placeholder": "¿Qué hubiera pasado si nunca cayó el Imperio Romano?",
+    "analyze_button": "Iniciar Simulación",
+    "simulating_button": "Calculando vectores...",
+    "trending_label": "Semillas activas:",
+    "preset_1": "La Biblioteca de Alejandría sobrevive",
+    "preset_2": "Singularidad de IA en 1980",
+    "preset_3": "El Sahara sigue siendo verde",
+    "badges": {
+      "ai_models": "Razonamiento Multivectorial",
+      "realtime": "Grafo Causal Determinista",
+      "historical": "+10,000 Semillas Históricas"
+    }
+  },
+  "dashboard": {
+    "summary_label": "Resumen Ejecutivo de la Bifurcación",
+    "risk_label": "Índice de Riesgo y Volatilidad",
+    "optimistic_label": "Resultado de la Rama Optimista",
+    "pessimistic_label": "Fallo en Cascada Pesimista",
+    "temporal_label": "Horizonte de Impacto Temporal",
+    "contingency_label": "Plan de Contingencia y Mitigación",
+    "one_month": "Horizonte de 1 Mes",
+    "one_year": "Horizonte de 1 Año",
+    "five_years": "Horizonte de 5 Años"
+  }
+}

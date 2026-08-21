@@ -1,0 +1,112 @@
+import { Dictionary, SupportedLocale } from './types';
+
+export const dictionaries: Record<SupportedLocale, Dictionary> = {
+  ar: {
+    badge: 'محرك المحاكاة الكمومية للواقع البديل v2.4',
+    hero_title: 'ماذا لو تغيّر مسار التاريخ أو قراراتك؟',
+    hero_subtitle: 'منصة تحليلية فائقة الدقة لحساب التفرعات السببية، والتحولات الجيوسياسية، والنتائج التاريخية الافتراضية مدعومة بنماذج Gemini.',
+    search_placeholder: 'ماذا لو لم تسقط الأندلس واستمرت كقوة علمية وصناعية؟',
+    analyze_button: 'بدء المحاكاة',
+    simulating_button: 'جارٍ احتساب المتجهات...',
+    trending_label: 'سيناريوهات مقترحة:',
+    preset_1: 'بقاء مكتبة الإسكندرية',
+    preset_2: 'ظهور الذكاء الاصطناعي في 1980',
+    preset_3: 'استمرار الصحراء الكبرى خضراء',
+    custom_key_label: 'مفتاح Gemini API (اختياري):',
+    custom_key_placeholder: 'الصق المفتاح الخاص بك هنا...',
+    custom_key_save: 'حفظ المفتاح',
+    key_saved: 'تم حفظ المفتاح بنجاح!',
+    summary_label: 'ملخص السيناريو التفرعي (EXECUTIVE SUMMARY)',
+    risk_label: 'مؤشر المخاطر والتقلب',
+    optimistic_label: 'المسار الإيجابي المتوقع (OPTIMISTIC BRANCH)',
+    pessimistic_label: 'المسار السلبي والتعثرات (PESSIMISTIC CASCADE)',
+    temporal_label: 'التأثير الزمني المتدرج (TEMPORAL IMPACT HORIZON)',
+    contingency_label: 'خطة الطوارئ والإجراءات التكيفية (CONTINGENCY PLAN)',
+    badges: {
+      ai_models: 'تحليل متعدد المتجهات',
+      realtime: 'رسم بياني سببي محكم',
+      historical: '+10,000 بذرة تاريخية'
+    }
+  },
+  en: {
+    badge: 'QUANTUM COUNTERFACTUAL ENGINE v2.4',
+    hero_title: 'What If History or Your Decisions Shifted?',
+    hero_subtitle: 'An advanced analytical engine computing causal divergence, macroeconomic branching, and hypothetical outcomes powered by Gemini.',
+    search_placeholder: 'What if the Library of Alexandria never burned and science accelerated 500 years?',
+    analyze_button: 'Simulate Reality',
+    simulating_button: 'Computing Branch Vectors...',
+    trending_label: 'Active Seeds:',
+    preset_1: 'Library of Alexandria survives',
+    preset_2: 'AI singularity in 1980',
+    preset_3: 'Green Sahara continued',
+    custom_key_label: 'Gemini API Key (Optional):',
+    custom_key_placeholder: 'Paste custom API key here...',
+    custom_key_save: 'Save Key',
+    key_saved: 'API Key saved successfully!',
+    summary_label: 'Branch Summary (EXECUTIVE SUMMARY)',
+    risk_label: 'Risk & Volatility Index',
+    optimistic_label: 'Optimistic Branch Outcome',
+    pessimistic_label: 'Pessimistic Cascade Failure',
+    temporal_label: 'Temporal Impact Horizon',
+    contingency_label: 'Contingency & Mitigation Plan',
+    badges: {
+      ai_models: 'Multi-Vector LLM Reasoning',
+      realtime: 'Deterministic Causal Graph',
+      historical: '10,000+ Historical Seeds'
+    }
+  },
+  es: {
+    badge: 'MOTOR DE SIMULACIÓN CUÁNTICA v2.4',
+    hero_title: '¿Qué pasaría si la historia o tus decisiones cambiaran?',
+    hero_subtitle: 'Un motor analítico avanzado que calcula divergencias causales y ramificaciones históricas con Gemini.',
+    search_placeholder: '¿Qué hubiera pasado si nunca cayó el Imperio Romano?',
+    analyze_button: 'Iniciar Simulación',
+    simulating_button: 'Calculando vectores...',
+    trending_label: 'Semillas activas:',
+    preset_1: 'La Biblioteca de Alejandría sobrevive',
+    preset_2: 'Singularidad de IA en 1980',
+    preset_3: 'El Sahara sigue siendo verde',
+    custom_key_label: 'Clave API de Gemini (Opcional):',
+    custom_key_placeholder: 'Pega tu clave API aquí...',
+    custom_key_save: 'Guardar Clave',
+    key_saved: '¡Clave guardada con éxito!',
+    summary_label: 'Resumen Ejecutivo de la Bifurcación',
+    risk_label: 'Índice de Riesgo y Volatilidad',
+    optimistic_label: 'Resultado de la Rama Optimista',
+    pessimistic_label: 'Fallo en Cascada Pesimista',
+    temporal_label: 'Horizonte de Impacto Temporal',
+    contingency_label: 'Plan de Contingencia y Mitigación',
+    badges: {
+      ai_models: 'Razonamiento Multivectorial',
+      realtime: 'Grafo Causal Determinista',
+      historical: '+10,000 Semillas Históricas'
+    }
+  },
+  fr: {
+    badge: 'MOTEUR DE SIMULATION QUANTIQUE v2.4',
+    hero_title: 'Et si l’histoire ou vos choix avaient basculé ?',
+    hero_subtitle: 'Un moteur analytique de pointe calculant la divergence causale et les futurs hypothétiques avec Gemini.',
+    search_placeholder: 'Et si la Révolution industrielle avait eu lieu en Asie ?',
+    analyze_button: 'Lancer la Simulation',
+    simulating_button: 'Calcul des vecteurs...',
+    trending_label: 'Scénarios actifs :',
+    preset_1: 'La bibliothèque d’Alexandrie préservée',
+    preset_2: 'Singularité IA en 1980',
+    preset_3: 'Le Sahara reste vert',
+    custom_key_label: 'Clé API Gemini (Optionnelle) :',
+    custom_key_placeholder: 'Collez votre clé API ici...',
+    custom_key_save: 'Enregistrer',
+    key_saved: 'Clé enregistrée avec succès !',
+    summary_label: 'Synthèse de Divergence (EXECUTIVE SUMMARY)',
+    risk_label: 'Indice de Risque et Volatilité',
+    optimistic_label: 'Trajectoire Optimiste',
+    pessimistic_label: 'Cascade Pessimiste',
+    temporal_label: 'Horizon d’Impact Temporel',
+    contingency_label: 'Plan de Contingence et Mesures',
+    badges: {
+      ai_models: 'Raisonnement Multi-Vecteurs',
+      realtime: 'Graphe Causal Déterministe',
+      historical: '+10 000 Graines Historiques'
+    }
+  }
+};

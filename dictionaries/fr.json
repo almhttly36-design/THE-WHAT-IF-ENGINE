@@ -1,0 +1,35 @@
+{
+  "navigation": {
+    "home": "Terminal",
+    "scenarios": "Scénarios",
+    "about": "Architecture"
+  },
+  "home": {
+    "badge": "MOTEUR DE SIMULATION QUANTIQUE v2.4",
+    "hero_title": "Et si l’histoire ou vos choix avaient basculé ?",
+    "hero_subtitle": "Un moteur analytique de pointe calculant la divergence causale et les futurs hypothétiques avec Gemini.",
+    "search_placeholder": "Et si la Révolution industrielle avait eu lieu en Asie ?",
+    "analyze_button": "Lancer la Simulation",
+    "simulating_button": "Calcul des vecteurs...",
+    "trending_label": "Scénarios actifs :",
+    "preset_1": "La bibliothèque d’Alexandrie préservée",
+    "preset_2": "Singularité IA en 1980",
+    "preset_3": "Le Sahara reste vert",
+    "badges": {
+      "ai_models": "Raisonnement Multi-Vecteurs",
+      "realtime": "Graphe Causal Déterministe",
+      "historical": "+10 000 Graines Historiques"
+    }
+  },
+  "dashboard": {
+    "summary_label": "Synthèse de Divergence (EXECUTIVE SUMMARY)",
+    "risk_label": "Indice de Risque et Volatilité",
+    "optimistic_label": "Trajectoire Optimiste",
+    "pessimistic_label": "Cascade Pessimiste",
+    "temporal_label": "Horizon d’Impact Temporel",
+    "contingency_label": "Plan de Contingence et Mesures",
+    "one_month": "Horizon 1 Mois",
+    "one_year": "Horizon 1 An",
+    "five_years": "Horizon 5 Ans"
+  }
+}
