@@ -286,23 +286,44 @@ export default function App() {
           const targetLangName = locale === 'ar' ? 'Arabic' : 'English';
           const aiDirect = new (await import('@google/genai')).GoogleGenAI({ apiKey: userApiKey.trim() });
           
-          const directResponse = await aiDirect.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: `Execute causal divergence simulation for this prompt in ${targetLangName}:\n\n"${promptToUse.trim()}"` }],
-              },
-            ],
-            config: {
-              systemInstruction: `You are The Oracle Engine, computing counterfactual forecasting. Output strictly in JSON format matching the schema in ${targetLangName}.`,
-              responseMimeType: 'application/json',
-              temperature: 0.7,
-            },
-          });
+          const directCandidateModels = [
+            'gemini-3.6-flash',
+            'gemini-3.1-flash-lite',
+            'gemini-flash-latest',
+            'gemini-3.7-flash',
+          ];
 
-          if (directResponse.text) {
-            const parsedDirect = JSON.parse(directResponse.text);
+          let directResponseText: string | null = null;
+          let lastDirectError: any = null;
+
+          for (const modelName of directCandidateModels) {
+            try {
+              const directResponse = await aiDirect.models.generateContent({
+                model: modelName,
+                contents: [
+                  {
+                    role: 'user',
+                    parts: [{ text: `Execute causal divergence simulation for this prompt in ${targetLangName}:\n\n"${promptToUse.trim()}"` }],
+                  },
+                ],
+                config: {
+                  systemInstruction: `You are The Oracle Engine, computing counterfactual forecasting. Output strictly in JSON format matching the schema with scenario_summary, risk_index (score number, category LOW/MODERATE/HIGH/EXTREME), outcomes (optimistic, pessimistic), temporal_impact (one_month, one_year, five_years), contingency_plan (string array), search_intent_title in ${targetLangName}.`,
+                  responseMimeType: 'application/json',
+                  temperature: 0.7,
+                },
+              });
+
+              if (directResponse.text) {
+                directResponseText = directResponse.text;
+                break;
+              }
+            } catch (err) {
+              lastDirectError = err;
+            }
+          }
+
+          if (directResponseText) {
+            const parsedDirect = JSON.parse(directResponseText);
             const normalizedDirect: SimulationResult = {
               scenario_summary: parsedDirect.scenario_summary || parsedDirect.summary || '',
               risk_index: parsedDirect.risk_index || { score: 65, category: 'HIGH' },
