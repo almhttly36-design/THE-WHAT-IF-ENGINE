@@ -207,18 +207,9 @@ export default function App() {
     setResult(null);
 
     try {
-      const response = await fetch('/api/simulate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: promptToUse.trim(),
-          language: locale,
-          customApiKey: userApiKey ? userApiKey.trim() : undefined,
-        }),
-      });
-
       let data: any = null;
       let isSuccess = false;
+      let serverErrorDetail: string | null = null;
 
       try {
         const response = await fetch('/api/simulate', {
@@ -240,7 +231,7 @@ export default function App() {
 
         if (response.ok && data?.success && data?.data) {
           isSuccess = true;
-        } else if (data?.needsApiKey) {
+        } else if (data?.needsApiKey || response.status === 401) {
           setKeyErrorMsg(
             locale === 'ar'
               ? 'مفتاح Gemini API غير صالح أو غير موجود. يرجى إدخال مفتاح صالح.'
@@ -248,10 +239,15 @@ export default function App() {
           );
           setKeyInput(userApiKey);
           setIsKeyModalOpen(true);
-          throw new Error(data?.error || 'API Key Invalid');
+          throw new Error(data?.error || (locale === 'ar' ? 'مفتاح API غير صالح أو مفقود' : 'API Key required'));
+        } else {
+          serverErrorDetail = data?.error || (response.statusText ? `HTTP ${response.status}: ${response.statusText}` : null);
         }
       } catch (networkErr: any) {
-        if (networkErr?.message === 'API Key Invalid') throw networkErr;
+        if (networkErr?.message?.includes('API Key') || networkErr?.message?.includes('مفتاح')) {
+          throw networkErr;
+        }
+        serverErrorDetail = networkErr?.message || 'Server connection error';
         console.warn('Backend proxy fetch failed, falling back to direct client execution if user key provided:', networkErr);
       }
 
@@ -281,10 +277,11 @@ export default function App() {
       }
 
       // Direct client-side fallback if user provided a key
-      if (userApiKey) {
+      if (userApiKey && userApiKey.trim()) {
         try {
           const targetLangName = locale === 'ar' ? 'Arabic' : 'English';
-          const aiDirect = new (await import('@google/genai')).GoogleGenAI({ apiKey: userApiKey.trim() });
+          const { GoogleGenAI } = await import('@google/genai');
+          const aiDirect = new GoogleGenAI({ apiKey: userApiKey.trim() });
           
           const directCandidateModels = [
             'gemini-3.6-flash',
@@ -307,7 +304,15 @@ export default function App() {
                   },
                 ],
                 config: {
-                  systemInstruction: `You are The Oracle Engine, computing counterfactual forecasting. Output strictly in JSON format matching the schema with scenario_summary, risk_index (score number, category LOW/MODERATE/HIGH/EXTREME), outcomes (optimistic, pessimistic), temporal_impact (one_month, one_year, five_years), contingency_plan (string array), search_intent_title in ${targetLangName}.`,
+                  systemInstruction: `You are The Oracle Engine, computing counterfactual forecasting. Output strictly in valid JSON format matching this schema:
+{
+  "scenario_summary": "2-3 sentence summary in ${targetLangName}",
+  "risk_index": { "score": 65, "category": "HIGH" },
+  "outcomes": { "optimistic": "...", "pessimistic": "..." },
+  "temporal_impact": { "one_month": "...", "one_year": "...", "five_years": "..." },
+  "contingency_plan": ["step 1", "step 2", "step 3", "step 4"],
+  "search_intent_title": "Short title in ${targetLangName}"
+}`,
                   responseMimeType: 'application/json',
                   temperature: 0.7,
                 },
@@ -317,8 +322,9 @@ export default function App() {
                 directResponseText = directResponse.text;
                 break;
               }
-            } catch (err) {
+            } catch (err: any) {
               lastDirectError = err;
+              console.warn(`[Client Direct Gemini] Model ${modelName} failed:`, err);
             }
           }
 
@@ -342,27 +348,39 @@ export default function App() {
             );
             return;
           }
+
+          if (lastDirectError) {
+            const errText = lastDirectError?.message || JSON.stringify(lastDirectError);
+            if (errText.includes('API_KEY_INVALID') || errText.includes('API key not valid') || errText.includes('400') || errText.includes('401') || errText.includes('403')) {
+              setKeyErrorMsg(
+                locale === 'ar'
+                  ? 'مفتاح Gemini API غير صالح. يرجى التأكد من نسخ المفتاح كاملاً من Google AI Studio (يبدأ بـ AIzaSy).'
+                  : 'Invalid Gemini API Key. Please verify and paste your valid key from Google AI Studio.'
+              );
+              setKeyInput(userApiKey);
+              setIsKeyModalOpen(true);
+              throw new Error(locale === 'ar' ? 'مفتاح API غير صالح' : 'Invalid API Key');
+            } else if (errText.includes('RESOURCE_EXHAUSTED') || errText.includes('429')) {
+              throw new Error(
+                locale === 'ar'
+                  ? 'تم استهلاك حصة المفتاح الحالية (Quota Exceeded / Rate Limit). يرجى المحاولة لاحقاً أو استخدام مفتاح آخر.'
+                  : 'Rate limit or quota exceeded for this API Key. Please try again later.'
+              );
+            } else {
+              throw new Error(errText);
+            }
+          }
         } catch (directAiErr: any) {
           console.error('Direct AI generation error:', directAiErr);
-          const errText = directAiErr?.message || '';
-          if (errText.includes('API_KEY') || errText.includes('400') || errText.includes('401') || errText.includes('403')) {
-            setKeyErrorMsg(
-              locale === 'ar'
-                ? 'مفتاح Gemini API المدخل غير صالح أو انتهت صلاحيته. يرجى كتابة مفتاح صحيح يبدأ بـ AIzaSy...'
-                : 'The Gemini API Key provided is invalid or expired. Please enter a valid key starting with AIzaSy...'
-            );
-            setKeyInput(userApiKey);
-            setIsKeyModalOpen(true);
-            throw new Error(locale === 'ar' ? 'مفتاح API غير صالح' : 'Invalid API Key');
-          }
           throw directAiErr;
         }
       }
 
       throw new Error(
-        locale === 'ar'
-          ? 'تعذر الاتصال بالذكاء الاصطناعي. يرجى التأكد من صحة المفتاح والمحاولة مجدداً.'
-          : 'Failed to connect to AI engine. Please verify your API key and try again.'
+        serverErrorDetail ||
+        (locale === 'ar'
+          ? 'تعذر إتمام المحاكاة. يرجى التحقق من صحة المفتاح والمحاولة مجدداً.'
+          : 'Failed to complete simulation. Please verify your API key and try again.')
       );
     } catch (err: any) {
       console.error('Simulation execution error:', err);

@@ -32,7 +32,7 @@ function getSupabaseClient(): SupabaseClient | null {
 
 // Lazy-initialization helper for Gemini
 function getGeminiClient(customApiKey?: string): GoogleGenAI {
-  const key = customApiKey || process.env.GEMINI_API_KEY;
+  const key = (customApiKey || process.env.GEMINI_API_KEY || '').trim();
   if (!key) {
     throw new Error('GEMINI_API_KEY is required to run simulations. Please set it in environment variables or enter it in the UI.');
   }
