@@ -119,6 +119,15 @@ const simulationResponseSchema = {
   ],
 };
 
+// Health & Config Check
+app.get('/api/health', (req, res) => {
+  const hasEnvKey = !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim().length > 0;
+  res.json({
+    status: 'ok',
+    hasServerApiKey: hasEnvKey,
+  });
+});
+
 // API Endpoint to check Supabase connection and scenario count
 app.get('/api/supabase-status', async (req, res) => {
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -416,8 +425,11 @@ You MUST output strictly in the requested target language: ${targetLangName}. Al
     });
   } catch (error: any) {
     console.error('Simulation Error:', error);
-    return res.status(500).json({
+    const msg = error?.message || '';
+    const isAuthIssue = msg.includes('API_KEY') || msg.includes('API key') || msg.includes('API_KEY_INVALID') || msg.includes('401') || msg.includes('403');
+    return res.status(isAuthIssue ? 401 : 500).json({
       success: false,
+      needsApiKey: isAuthIssue,
       error: error.message || 'Failed to compute scenario matrix.',
     });
   }

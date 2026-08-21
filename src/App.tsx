@@ -19,7 +19,10 @@ import {
   Bookmark,
   Radar,
   CheckCircle2,
-  Database
+  Database,
+  Key,
+  Save,
+  Trash2
 } from 'lucide-react';
 import { SupportedLocale, SimulationResult, HistoryItem } from './types';
 import { localeDirection, localeLabels, Locale } from './config/i18n.config';
@@ -28,6 +31,7 @@ import { HistoryJournal } from './components/HistoryJournal';
 import { ToastContainer, ToastMessage } from './components/ToastContainer';
 
 const LOCAL_STORAGE_HISTORY_KEY = 'WHAT_IF_SIMULATION_HISTORY';
+const LOCAL_STORAGE_API_KEY = 'WHAT_IF_GEMINI_API_KEY';
 
 export default function App() {
   const [locale, setLocale] = useState<Locale>(() => {
@@ -49,6 +53,31 @@ export default function App() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  // Smart API Key Management: Only shows if missing or failing
+  const [userApiKey, setUserApiKey] = useState<string>(() => {
+    try {
+      return localStorage.getItem(LOCAL_STORAGE_API_KEY) || '';
+    } catch {
+      return '';
+    }
+  });
+  const [isKeyModalOpen, setIsKeyModalOpen] = useState(false);
+  const [keyInput, setKeyInput] = useState('');
+  const [keyErrorMsg, setKeyErrorMsg] = useState<string | null>(null);
+  const [hasServerKey, setHasServerKey] = useState<boolean | null>(null);
+
+  // Check on load if the server has an active Gemini key
+  useEffect(() => {
+    fetch('/api/health')
+      .then((res) => res.json())
+      .then((data) => {
+        setHasServerKey(!!data.hasServerApiKey);
+      })
+      .catch(() => {
+        setHasServerKey(false);
+      });
+  }, []);
 
   // Helper to trigger toast notifications
   const addToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info', title?: string) => {
@@ -158,6 +187,18 @@ export default function App() {
     const promptToUse = overridePrompt || query;
     if (!promptToUse.trim() || isSimulating) return;
 
+    // If server has no key and user has no key, prompt immediately
+    if (hasServerKey === false && !userApiKey) {
+      setKeyErrorMsg(
+        locale === 'ar'
+          ? 'يرجى إدخال مفتاح Gemini API للمتابعة (لا يوجد مفتاح مفعل على الخادم).'
+          : 'Please enter your Gemini API Key to proceed.'
+      );
+      setKeyInput('');
+      setIsKeyModalOpen(true);
+      return;
+    }
+
     setIsSimulating(true);
     setErrorMessage(null);
     setResult(null);
@@ -169,10 +210,23 @@ export default function App() {
         body: JSON.stringify({
           prompt: promptToUse.trim(),
           language: locale,
+          customApiKey: userApiKey ? userApiKey.trim() : undefined,
         }),
       });
 
       const data = await response.json();
+
+      // If backend reports that an API key is required or the provided key is invalid
+      if (!response.ok && data.needsApiKey) {
+        setKeyErrorMsg(
+          locale === 'ar'
+            ? 'مفتاح Gemini API غير موجود أو غير صالح. يرجى إدخال مفتاح صحيح.'
+            : 'Gemini API Key is missing or invalid. Please provide a valid key.'
+        );
+        setKeyInput(userApiKey);
+        setIsKeyModalOpen(true);
+        throw new Error(data.error || 'API Key Required');
+      }
 
       if (response.ok && data.success && data.data) {
         setResult(data.data);
@@ -830,6 +884,140 @@ export default function App() {
           THE WHAT IF ENGINE © 2026 • QUANTUM CAUSALITY LABS
         </div>
       </footer>
+
+      {/* Smart API Key Dialog (Appears automatically when key is missing or failing) */}
+      {isKeyModalOpen && (
+        <div 
+          id="api-key-modal-overlay"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md animate-fadeIn"
+          dir={dir}
+        >
+          <div 
+            id="api-key-modal-container"
+            className="w-full max-w-lg rounded-2xl bg-zinc-900/95 border border-cyan-500/40 p-6 sm:p-7 shadow-2xl shadow-cyan-950/50 relative overflow-hidden"
+          >
+            {/* Ambient Top Glow */}
+            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
+
+            <div className="flex items-start gap-4 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-cyan-950/80 border border-cyan-500/40 text-cyan-400 flex items-center justify-center shrink-0 shadow-inner">
+                <Key className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-base font-bold text-white tracking-tight">
+                  {locale === 'ar' ? 'تفعيل مفتاح الذكاء الاصطناعي (Gemini API)' : 'Gemini AI Engine Activation'}
+                </h3>
+                <p className="text-xs font-mono text-zinc-400 mt-1">
+                  {locale === 'ar' 
+                    ? 'المفتاح مطلوب لتوليد المحاكاة والتنبؤ السببي بدقة فائقة'
+                    : 'Required to power autonomous causality simulations'}
+                </p>
+              </div>
+            </div>
+
+            {keyErrorMsg && (
+              <div className="mb-4 p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs font-mono flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{keyErrorMsg}</span>
+              </div>
+            )}
+
+            <div className="space-y-3 mb-6">
+              <label className="block text-xs font-mono text-zinc-300">
+                {locale === 'ar' ? 'أدخل مفتاح Google Gemini API:' : 'Enter your Google Gemini API Key:'}
+              </label>
+              <div className="relative">
+                <input
+                  id="gemini-api-key-input"
+                  type="password"
+                  value={keyInput}
+                  onChange={(e) => {
+                    setKeyInput(e.target.value);
+                    setKeyErrorMsg(null);
+                  }}
+                  placeholder="AIzaSy..."
+                  className="w-full px-4 py-3 rounded-xl bg-zinc-950 border border-zinc-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-zinc-100 placeholder:text-zinc-600 font-mono text-xs outline-none transition-all"
+                />
+              </div>
+              <p className="text-[11px] text-zinc-500 leading-relaxed font-sans">
+                {locale === 'ar'
+                  ? '🔒 يتم حفظ المفتاح بأمان داخل متصفحك محلياً (Local Storage) ولن تحتاج لإدخاله مرة أخرى إلا إذا قمت بتغييره أو انتهت صلاحيته.'
+                  : '🔒 Your key is securely stored in your local browser storage and used for subsequent requests automatically.'}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 pt-4 border-t border-zinc-800/80">
+              {userApiKey ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      localStorage.removeItem(LOCAL_STORAGE_API_KEY);
+                    } catch {}
+                    setUserApiKey('');
+                    setKeyInput('');
+                    setKeyErrorMsg(null);
+                    addToast(
+                      locale === 'ar' ? 'تم حذف المفتاح المحلي' : 'API Key Removed',
+                      'info'
+                    );
+                  }}
+                  className="px-3 py-2 rounded-lg text-xs font-mono text-rose-400 hover:bg-rose-950/40 border border-rose-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>{locale === 'ar' ? 'حذف المفتاح' : 'Delete'}</span>
+                </button>
+              ) : (
+                <div />
+              )}
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsKeyModalOpen(false);
+                    setKeyErrorMsg(null);
+                  }}
+                  className="px-4 py-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-800 text-zinc-300 text-xs font-mono transition-all cursor-pointer"
+                >
+                  {locale === 'ar' ? 'إلغاء' : 'Dismiss'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const trimmed = keyInput.trim();
+                    if (!trimmed) {
+                      setKeyErrorMsg(
+                        locale === 'ar' ? 'يرجى إدخال مفتاح صالح' : 'Please enter a valid API key'
+                      );
+                      return;
+                    }
+                    try {
+                      localStorage.setItem(LOCAL_STORAGE_API_KEY, trimmed);
+                    } catch {}
+                    setUserApiKey(trimmed);
+                    setIsKeyModalOpen(false);
+                    setKeyErrorMsg(null);
+                    addToast(
+                      locale === 'ar' ? 'تم حفظ وتفعيل مفتاح Gemini بنجاح' : 'Gemini API Key activated & saved locally',
+                      'success',
+                      locale === 'ar' ? 'تفعيل المحرك' : 'Engine Ready'
+                    );
+                    // If user had an active query, auto-trigger analysis
+                    if (query.trim()) {
+                      handleAnalyze(query.trim());
+                    }
+                  }}
+                  className="px-5 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold text-xs font-mono transition-all flex items-center gap-2 cursor-pointer shadow-lg shadow-cyan-500/20"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{locale === 'ar' ? 'حفظ وتفعيل' : 'Save & Activate'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
