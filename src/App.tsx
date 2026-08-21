@@ -22,13 +22,25 @@ import {
   Database,
   Key,
   Save,
-  Trash2
+  Trash2,
+  Cloud,
+  CloudCheck,
+  Compass,
+  Dice5,
+  BookOpen
 } from 'lucide-react';
 import { SupportedLocale, SimulationResult, HistoryItem } from './types';
 import { localeDirection, localeLabels, Locale } from './config/i18n.config';
 import { getDictionary, Dictionary } from './lib/dictionary';
 import { HistoryJournal } from './components/HistoryJournal';
 import { ToastContainer, ToastMessage } from './components/ToastContainer';
+import { ScenarioExplorer } from './components/ScenarioExplorer';
+import { PRESET_SCENARIOS } from './data/presetScenarios';
+import { 
+  saveSimulationToFirestore, 
+  subscribeToSimulations, 
+  deleteSimulationFromFirestore 
+} from './lib/firestoreService';
 
 const LOCAL_STORAGE_HISTORY_KEY = 'WHAT_IF_SIMULATION_HISTORY';
 const LOCAL_STORAGE_API_KEY = 'WHAT_IF_GEMINI_API_KEY';
@@ -52,6 +64,7 @@ export default function App() {
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isExplorerOpen, setIsExplorerOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   // Smart API Key Management: Only shows if missing or failing
@@ -110,22 +123,62 @@ export default function App() {
     }
   }, [locale]);
 
-  // Load history logs from localStorage on mount
+  // Subscribe to Cloud Firestore real-time updates and fallback to LocalStorage
   useEffect(() => {
+    // 1. Initial LocalStorage load for zero latency
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_HISTORY_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           setHistory(parsed);
         }
       }
     } catch (e) {
       console.warn('Failed to load local simulation history:', e);
     }
+
+    // 2. Real-time Cloud Firestore subscription
+    const unsubscribe = subscribeToSimulations((firestoreItems) => {
+      if (firestoreItems && firestoreItems.length > 0) {
+        setHistory((prev) => {
+          // Merge Firestore items with local items, prioritizing Firestore and avoiding duplicates
+          const seen = new Set<string>();
+          const merged: HistoryItem[] = [];
+
+          firestoreItems.forEach((item) => {
+            const key = item.user_prompt.trim().toLowerCase();
+            if (!seen.has(key)) {
+              seen.add(key);
+              merged.push(item);
+            }
+          });
+
+          prev.forEach((item) => {
+            const key = item.user_prompt.trim().toLowerCase();
+            if (!seen.has(key)) {
+              seen.add(key);
+              merged.push(item);
+            }
+          });
+
+          // Sort by newest timestamp
+          merged.sort((a, b) => b.timestamp - a.timestamp);
+          const sliced = merged.slice(0, 50);
+          try {
+            localStorage.setItem(LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(sliced));
+          } catch {}
+          return sliced;
+        });
+      }
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
-  const saveHistoryItem = (promptText: string, simResult: SimulationResult) => {
+  const saveHistoryItem = async (promptText: string, simResult: SimulationResult) => {
     try {
       const newItem: HistoryItem = {
         id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
@@ -144,6 +197,11 @@ export default function App() {
         localStorage.setItem(LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(updated));
         return updated;
       });
+
+      // Also persist asynchronously to Cloud Firestore
+      saveSimulationToFirestore(promptText, simResult, locale).catch((err) => {
+        console.warn('Cloud Firestore background sync note:', err);
+      });
     } catch (e) {
       console.warn('Failed to persist history item:', e);
     }
@@ -158,7 +216,7 @@ export default function App() {
     }
   };
 
-  const handleDeleteHistoryItem = (id: string, e: React.MouseEvent) => {
+  const handleDeleteHistoryItem = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setHistory((prev) => {
       const updated = prev.filter((item) => item.id !== id);
@@ -169,6 +227,13 @@ export default function App() {
       }
       return updated;
     });
+
+    // Delete from Firestore if it is a Firestore document ID
+    try {
+      await deleteSimulationFromFirestore(id);
+    } catch (err) {
+      console.warn('Firestore item delete error:', err);
+    }
   };
 
   const handleSelectHistory = (item: HistoryItem) => {
@@ -180,9 +245,9 @@ export default function App() {
     setErrorMessage(null);
     setIsHistoryOpen(false);
     addToast(
-      locale === 'ar' ? 'تم استرجاع السيناريو فورياً من الذاكرة المحلية' : 'Scenario restored instantly from local cache',
+      locale === 'ar' ? 'تم استرجاع السيناريو فورياً من قاعدة البيانات' : 'Scenario restored instantly from database',
       'info',
-      locale === 'ar' ? 'سجل محلي' : 'Local Telemetry'
+      locale === 'ar' ? 'قاعدة البيانات' : 'Database Record'
     );
   };
 
@@ -401,6 +466,18 @@ export default function App() {
     handleAnalyze(preset);
   };
 
+  const handlePickRandomQuestion = () => {
+    const randomItem = PRESET_SCENARIOS[Math.floor(Math.random() * PRESET_SCENARIOS.length)];
+    const text = randomItem.title[locale] || randomItem.title.en;
+    setQuery(text);
+    handleAnalyze(text);
+    addToast(
+      locale === 'ar' ? 'تم اختيار سيناريو عشوائي مثير وبدء المحاكاة!' : 'Random scenario seed selected and simulating!',
+      'info',
+      locale === 'ar' ? 'سؤال عشوائي' : 'Random Seed'
+    );
+  };
+
   if (!dict) {
     return (
       <div className="min-h-screen bg-[#04060A] text-zinc-400 flex items-center justify-center font-mono">
@@ -409,7 +486,8 @@ export default function App() {
     );
   }
 
-  const presets = [dict.home.preset_1, dict.home.preset_2, dict.home.preset_3];
+  // Pick 4 top trending presets from our dataset
+  const dynamicPresets = PRESET_SCENARIOS.slice(0, 4).map((s) => s.title[locale] || s.title.en);
 
   return (
     <div 
@@ -454,6 +532,15 @@ export default function App() {
         {/* Right Controls: History Button & Language Selector */}
         <div className="flex items-center gap-2 sm:gap-3">
           
+          {/* Cloud Database Sync Status Indicator */}
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-900/80 border border-zinc-800 text-[11px] font-mono text-zinc-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <Database className="w-3 h-3 text-cyan-400" />
+            <span className="text-zinc-300">
+              {locale === 'ar' ? 'قاعدة بيانات سحابية متصلة' : 'Cloud Firestore Active'}
+            </span>
+          </div>
+
           {/* History Drawer Toggle Button */}
           <button
             onClick={() => setIsHistoryOpen(true)}
@@ -569,9 +656,21 @@ export default function App() {
                     disabled={isSimulating}
                     placeholder={dict.home.search_placeholder}
                     className={`w-full bg-zinc-900/60 text-zinc-100 placeholder-zinc-500 text-sm sm:text-base font-normal rounded-xl py-4 ${
-                      isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'
+                      isRTL ? 'pr-12 pl-24' : 'pl-12 pr-24'
                     } border border-zinc-800 focus:outline-none focus:bg-zinc-900/90 focus:border-cyan-500/60 transition-all font-sans`}
                   />
+
+                  {/* Random Question Button inside input */}
+                  <button
+                    type="button"
+                    onClick={handlePickRandomQuestion}
+                    disabled={isSimulating}
+                    title={locale === 'ar' ? 'سؤال عشوائي مفاجئ' : 'Random Question'}
+                    className={`absolute ${isRTL ? 'left-3' : 'right-3'} px-2.5 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-cyan-950/60 text-zinc-300 hover:text-cyan-300 border border-zinc-700/60 hover:border-cyan-500/40 text-xs font-mono flex items-center gap-1.5 transition-all cursor-pointer shadow-sm`}
+                  >
+                    <Dice5 className="w-3.5 h-3.5 text-cyan-400" />
+                    <span className="hidden sm:inline">{locale === 'ar' ? 'عشوائي' : 'Random'}</span>
+                  </button>
 
                   {/* Laser Pulse / Scanline Effect */}
                   {isSimulating && (
@@ -613,35 +712,46 @@ export default function App() {
                 </div>
               )}
 
-              {/* Trending Presets & Quick Recent History */}
+              {/* Trending Presets & Quick Scenario Bank Button */}
               <div className="mt-3.5 pt-3 border-t border-zinc-900/90 flex flex-wrap items-center justify-between gap-2 px-1 text-xs">
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-1.5">
                   <span className="text-zinc-500 font-mono text-[11px] flex items-center gap-1">
                     <Activity className="w-3 h-3 text-cyan-400" />
                     {dict.home.trending_label}
                   </span>
-                  {presets.map((preset, idx) => (
+                  {dynamicPresets.map((preset, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => handlePresetSelect(preset)}
-                      className="px-2.5 py-1 rounded-md bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-cyan-300 border border-zinc-800 hover:border-cyan-500/40 transition-all text-[11px] font-sans truncate max-w-[260px] cursor-pointer"
+                      className="px-2.5 py-1 rounded-md bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-cyan-300 border border-zinc-800 hover:border-cyan-500/40 transition-all text-[11px] font-sans truncate max-w-[220px] cursor-pointer"
                     >
                       {preset}
                     </button>
                   ))}
                 </div>
 
-                {history.length > 0 && (
+                <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => setIsHistoryOpen(true)}
-                    className="text-[11px] font-mono text-cyan-400/90 hover:text-cyan-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    onClick={() => setIsExplorerOpen(true)}
+                    className="px-2.5 py-1 rounded-md bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-500/40 text-cyan-300 text-[11px] font-mono flex items-center gap-1.5 cursor-pointer transition-all shadow-sm"
                   >
-                    <History className="w-3 h-3" />
-                    <span>{locale === 'ar' ? `السجل (${history.length})` : `History (${history.length})`}</span>
+                    <BookOpen className="w-3 h-3 text-cyan-400" />
+                    <span>{locale === 'ar' ? 'بنك الأسئلة (18+)' : 'Scenario Vault (18+)'}</span>
                   </button>
-                )}
+
+                  {history.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setIsHistoryOpen(true)}
+                      className="text-[11px] font-mono text-zinc-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <History className="w-3 h-3" />
+                      <span>{locale === 'ar' ? `السجل (${history.length})` : `Logs (${history.length})`}</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -1012,6 +1122,38 @@ export default function App() {
           THE WHAT IF ENGINE © 2026 • QUANTUM CAUSALITY LABS
         </div>
       </footer>
+
+      {/* History Journal Drawer Panel */}
+      <HistoryJournal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        history={history}
+        onSelectHistory={handleSelectHistory}
+        onClearHistory={handleClearHistory}
+        onDeleteItem={handleDeleteHistoryItem}
+        currentPrompt={query}
+        locale={locale}
+        isCloudSynced={true}
+      />
+
+      {/* Scenario Explorer / Question Vault Modal */}
+      <ScenarioExplorer
+        isOpen={isExplorerOpen}
+        onClose={() => setIsExplorerOpen(false)}
+        onSelectScenario={(prompt) => {
+          setQuery(prompt);
+          handleAnalyze(prompt);
+          addToast(
+            locale === 'ar' ? 'تم اختيار السيناريو وبدء المحاكاة!' : 'Scenario loaded and simulation started!',
+            'info',
+            locale === 'ar' ? 'محاكاة تفرعية' : 'Branching Simulation'
+          );
+        }}
+        locale={locale}
+      />
+
+      {/* Toast Notification Container */}
+      <ToastContainer toasts={toasts} onDismiss={handleDismissToast} />
 
       {/* Smart API Key Dialog (Appears automatically when key is missing or failing) */}
       {isKeyModalOpen && (

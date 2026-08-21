@@ -8,7 +8,8 @@ import {
   AlertCircle, 
   Terminal, 
   Database,
-  ExternalLink
+  Cloud,
+  CloudCheck
 } from 'lucide-react';
 import { HistoryItem } from '../types';
 import { Locale } from '../config/i18n.config';
@@ -22,6 +23,7 @@ interface HistoryJournalProps {
   onDeleteItem: (id: string, e: React.MouseEvent) => void;
   currentPrompt?: string;
   locale: Locale;
+  isCloudSynced?: boolean;
 }
 
 export const HistoryJournal: React.FC<HistoryJournalProps> = ({
@@ -32,7 +34,8 @@ export const HistoryJournal: React.FC<HistoryJournalProps> = ({
   onClearHistory,
   onDeleteItem,
   currentPrompt,
-  locale
+  locale,
+  isCloudSynced = true,
 }) => {
   if (!isOpen) return null;
 
@@ -77,15 +80,18 @@ export const HistoryJournal: React.FC<HistoryJournalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-xs font-mono font-bold text-zinc-100 tracking-wider uppercase">
-                  {locale === 'ar' ? 'سجل المحاكاة المحلي' : 'QUANTUM CHRONO LOGS'}
+                  {locale === 'ar' ? 'سجل المحاكاة وقاعدة البيانات' : 'QUANTUM CHRONO LOGS'}
                 </h3>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/30 text-cyan-400">
                   {history.length}
                 </span>
               </div>
-              <p className="text-[10px] font-mono text-zinc-500">
-                LOCAL CHRONO ARCHIVE • PERSISTENT
-              </p>
+              <div className="flex items-center gap-1.5 text-[10px] font-mono text-zinc-500">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-emerald-400 font-medium">
+                  {locale === 'ar' ? 'سحابي متصل (Cloud Firestore)' : 'FIRESTORE REAL-TIME SYNC'}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -94,7 +100,7 @@ export const HistoryJournal: React.FC<HistoryJournalProps> = ({
               <button
                 onClick={onClearHistory}
                 className="px-2.5 py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 border border-rose-500/30 text-rose-300 hover:text-rose-200 text-[11px] font-mono flex items-center gap-1 transition-all cursor-pointer"
-                title={locale === 'ar' ? 'مسح كل السجل' : 'Purge All Logs'}
+                title={locale === 'ar' ? 'مسح السجل' : 'Purge Logs'}
               >
                 <Trash2 className="w-3 h-3" />
                 <span className="hidden sm:inline">{locale === 'ar' ? 'مسح' : 'Purge'}</span>
@@ -122,8 +128,8 @@ export const HistoryJournal: React.FC<HistoryJournalProps> = ({
               </p>
               <p className="text-[11px] font-sans text-zinc-600 max-w-xs leading-relaxed">
                 {locale === 'ar' 
-                  ? 'كل سيناريو "ماذا لو" تقوم بمحاكاته سيتم أرشفته هنا محلياً في متصفحك للرجوع إليه فوراً.'
-                  : 'Every counterfactual simulation you execute will be logged locally in this terminal for zero-latency review.'}
+                  ? 'كل سيناريو "ماذا لو" تقوم بمحاكاته سيتم حفظه ومزامنته سحابياً في Firestore للرجوع إليه في أي وقت.'
+                  : 'Every counterfactual simulation you execute will be logged and synced in Firestore database for instant review.'}
               </p>
             </div>
           ) : (
@@ -164,23 +170,26 @@ export const HistoryJournal: React.FC<HistoryJournalProps> = ({
                     </div>
                   </div>
 
-                  {/* Prompt Text */}
-                  <div className="text-xs font-sans font-semibold text-zinc-100 mb-1.5 line-clamp-2 leading-relaxed">
+                  {/* Scenario Prompt Query */}
+                  <p className="text-xs font-sans font-medium text-zinc-200 group-hover:text-cyan-300 transition-colors line-clamp-2 mb-1.5 leading-snug">
                     "{item.user_prompt}"
-                  </div>
+                  </p>
 
-                  {/* Summary Snippet */}
+                  {/* Scenario Summary Snippet */}
                   <p className="text-[11px] font-sans text-zinc-400 line-clamp-2 leading-relaxed">
                     {item.scenario_summary}
                   </p>
 
-                  {/* Bottom Action Footer */}
-                  <div className="mt-2.5 pt-2 border-t border-zinc-900 flex items-center justify-between text-[10px] text-zinc-500">
-                    <span className="flex items-center gap-1 text-cyan-400/80 group-hover:text-cyan-300">
-                      <ExternalLink className="w-3 h-3" />
-                      {locale === 'ar' ? 'تحميل التحليل الفوري' : 'Instant Reload (No API Call)'}
+                  {/* Bottom Indicators */}
+                  <div className="mt-2.5 pt-2 border-t border-zinc-900 flex items-center justify-between text-[10px] text-zinc-600">
+                    <span className="flex items-center gap-1 text-cyan-500/80">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                      <span>{item.risk_category}</span>
                     </span>
-                    <ChevronRight className={`w-3.5 h-3.5 text-zinc-600 group-hover:text-cyan-400 transition-transform ${isRTL ? 'rotate-180' : ''}`} />
+                    <span className="text-zinc-500 group-hover:text-zinc-300 flex items-center gap-0.5 transition-colors">
+                      <span>{locale === 'ar' ? 'استعراض المحاكاة' : 'Recall State'}</span>
+                      <ChevronRight className={`w-3 h-3 ${isRTL ? 'rotate-180' : ''}`} />
+                    </span>
                   </div>
                 </div>
               );
@@ -188,13 +197,13 @@ export const HistoryJournal: React.FC<HistoryJournalProps> = ({
           )}
         </div>
 
-        {/* Drawer Footer */}
-        <div className="p-3.5 bg-zinc-950 border-t border-zinc-800/80 flex items-center justify-between text-[10px] font-mono text-zinc-500">
+        {/* Drawer Footer Status */}
+        <div className="p-3.5 bg-zinc-950 border-t border-zinc-800/80 flex items-center justify-between text-[11px] font-mono text-zinc-500">
           <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-            STORAGE: LOCAL STORAGE
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-zinc-400">FIRESTORE CLOUD ACTIVE</span>
           </span>
-          <span className="text-zinc-600">ZERO CLOUD PERSISTENCE</span>
+          <span className="text-zinc-600">ENCRYPTED</span>
         </div>
       </aside>
     </div>
