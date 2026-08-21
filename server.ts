@@ -435,6 +435,68 @@ You MUST output strictly in the requested target language: ${targetLangName}. Al
   }
 });
 
+// Dynamic XML Sitemap for Googlebot Crawling & Search Indexing
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const host = req.get('host') || 'localhost:3000';
+    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+    const baseUrl = `${protocol}://${host}`;
+
+    const presetUrls = [
+      'ماذا-لو-لم-تسقط-الأندلس-واستمرت-كقوة-علمية-وصناعية',
+      'ماذا-لو-نجت-مكتبة-الإسكندرية-ولم-تحترق',
+      'ماذا-لو-لم-يدمر-المغول-بغداد-ودار-الحكمة-1258',
+      'ماذا-لو-تجنب-العالم-الحرب-العالمية-الأولى',
+      'ماذا-لو-ظهر-الذكاء-الاصطناعي-العام-1980',
+      'ماذا-لو-تم-إتقان-الاندماج-النووي-النظيف-مجانا',
+      'ماذا-لو-انقطع-الإنترنت-عن-العالم-لمدة-عام',
+      'ماذا-لو-تحولت-الصحراء-الكبرى-إلى-غابات-خضراء',
+      'ماذا-لو-انخفضت-جاذبية-الأرض-50-بالمئة',
+      'ماذا-لو-تأسست-مستعمرة-المريخ-2030',
+      'ماذا-لو-اكتشف-محرك-سفر-أسرع-من-الضوء',
+      'ماذا-لو-طبق-الدخل-الأساسي-الشامل-2000-دولار',
+      'ماذا-لو-ولد-البشر-بقدرة-التخاطر-دون-كذب',
+      'ماذا-لو-اكتشف-علاج-يوقف-الشيخوخة-والخلود',
+    ];
+
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${baseUrl}/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>`;
+
+    for (const slug of presetUrls) {
+      xml += `
+  <url>
+    <loc>${baseUrl}/?q=${encodeURIComponent(slug.replace(/-/g, ' '))}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+    }
+
+    xml += `
+</urlset>`;
+
+    res.header('Content-Type', 'application/xml');
+    res.send(xml);
+  } catch (err) {
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
+// Dynamic robots.txt
+app.get('/robots.txt', (req, res) => {
+  const host = req.get('host') || 'localhost:3000';
+  const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+  res.type('text/plain');
+  res.send(`User-agent: *
+Allow: /
+Sitemap: ${protocol}://${host}/sitemap.xml
+`);
+});
+
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');

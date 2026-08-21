@@ -39,7 +39,8 @@ import { PRESET_SCENARIOS } from './data/presetScenarios';
 import { 
   saveSimulationToFirestore, 
   subscribeToSimulations, 
-  deleteSimulationFromFirestore 
+  deleteSimulationFromFirestore,
+  findSimulationInFirestore
 } from './lib/firestoreService';
 
 const LOCAL_STORAGE_HISTORY_KEY = 'WHAT_IF_SIMULATION_HISTORY';
@@ -255,8 +256,33 @@ export default function App() {
     const promptToUse = overridePrompt || query;
     if (!promptToUse.trim() || isSimulating) return;
 
-    // If server has no key and user has no key, prompt immediately
+    setIsSimulating(true);
+    setErrorMessage(null);
+    setResult(null);
+
+    // 1. Instant Sub-Second Check in Cloud Firestore / Local Shared Memory (< 0.2s)
+    try {
+      const cachedHit = await findSimulationInFirestore(promptToUse, history);
+      if (cachedHit) {
+        setResult(cachedHit);
+        saveHistoryItem(promptToUse, cachedHit);
+        setIsSimulating(false);
+        addToast(
+          locale === 'ar' 
+            ? '⚡ تم العثور على النتيجة فورياً في قاعدة البيانات السحابية (أقل من ثانية وبدون استهلاك AI)' 
+            : '⚡ Instant Cache Hit: Retrieved in <0.3s directly from Cloud Firestore (Zero AI tokens consumed)',
+          'success',
+          locale === 'ar' ? 'ذاكرة سحابية فورية' : 'Instant Cloud Cache'
+        );
+        return;
+      }
+    } catch (e) {
+      console.warn('Firestore instant search skipped, running AI generation:', e);
+    }
+
+    // 2. If no existing match is found, verify API key before calling Gemini
     if (hasServerKey === false && !userApiKey) {
+      setIsSimulating(false);
       setKeyErrorMsg(
         locale === 'ar'
           ? 'يرجى إدخال مفتاح Gemini API للمتابعة (لا يوجد مفتاح مفعل على الخادم).'
@@ -266,10 +292,6 @@ export default function App() {
       setIsKeyModalOpen(true);
       return;
     }
-
-    setIsSimulating(true);
-    setErrorMessage(null);
-    setResult(null);
 
     try {
       let data: any = null;
