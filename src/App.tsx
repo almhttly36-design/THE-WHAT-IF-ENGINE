@@ -217,36 +217,49 @@ export default function App() {
         }),
       });
 
-      let data: any;
-      const responseText = await response.text();
+      let data: any = null;
+      let isSuccess = false;
+
       try {
-        data = JSON.parse(responseText);
-      } catch (parseErr) {
-        console.error('Server returned non-JSON response:', responseText);
-        throw new Error(
-          locale === 'ar'
-            ? 'تعذر الاتصال بالخادم بشكل صحيح. يرجى التأكد من تشغيل السيرفر أو صحة المفتاح والمحاولة مجدداً.'
-            : 'Received an invalid server response. Please verify the API connection and try again.'
-        );
+        const response = await fetch('/api/simulate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            prompt: promptToUse.trim(),
+            language: locale,
+            customApiKey: userApiKey ? userApiKey.trim() : undefined,
+          }),
+        });
+
+        const responseText = await response.text();
+        try {
+          data = JSON.parse(responseText);
+        } catch {
+          data = null;
+        }
+
+        if (response.ok && data?.success && data?.data) {
+          isSuccess = true;
+        } else if (data?.needsApiKey) {
+          setKeyErrorMsg(
+            locale === 'ar'
+              ? 'مفتاح Gemini API غير صالح أو غير موجود. يرجى إدخال مفتاح صالح.'
+              : 'Gemini API Key is invalid or missing.'
+          );
+          setKeyInput(userApiKey);
+          setIsKeyModalOpen(true);
+          throw new Error(data?.error || 'API Key Invalid');
+        }
+      } catch (networkErr: any) {
+        if (networkErr?.message === 'API Key Invalid') throw networkErr;
+        console.warn('Backend proxy fetch failed, falling back to direct client execution if user key provided:', networkErr);
       }
 
-      // If backend reports that an API key is required or the provided key is invalid
-      if (!response.ok && data.needsApiKey) {
-        setKeyErrorMsg(
-          locale === 'ar'
-            ? 'مفتاح Gemini API غير موجود أو غير صالح. يرجى إدخال مفتاح صحيح.'
-            : 'Gemini API Key is missing or invalid. Please provide a valid key.'
-        );
-        setKeyInput(userApiKey);
-        setIsKeyModalOpen(true);
-        throw new Error(data.error || 'API Key Required');
-      }
-
-      if (response.ok && data.success && data.data) {
+      // If backend succeeded, process result
+      if (isSuccess && data?.data) {
         setResult(data.data);
         saveHistoryItem(promptToUse, data.data);
 
-        // Feedback toast based on knowledge source
         if (data.data.source === 'shared_cache') {
           addToast(
             locale === 'ar' 
@@ -258,8 +271,8 @@ export default function App() {
         } else {
           addToast(
             locale === 'ar'
-              ? 'تم توليد التحليل بواسطة الذكاء الاصطناعي وأرشفته في المعرفة المشتركة'
-              : 'Synthesized by Gemini AI & indexed into Shared Knowledge Base',
+              ? 'تم توليد التحليل بواسطة الذكاء الاصطناعي بنجاح'
+              : 'Synthesized by Gemini AI successfully',
             'success',
             locale === 'ar' ? 'ذكاء اصطناعي فائق' : 'Gemini Synthesized'
           );
@@ -267,7 +280,69 @@ export default function App() {
         return;
       }
 
-      throw new Error(data.error || (locale === 'ar' ? 'فشلت عملية المحاكاة. يرجى المحاولة مرة أخرى.' : 'Simulation failed. Please try again.'));
+      // Direct client-side fallback if user provided a key
+      if (userApiKey) {
+        try {
+          const targetLangName = locale === 'ar' ? 'Arabic' : 'English';
+          const aiDirect = new (await import('@google/genai')).GoogleGenAI({ apiKey: userApiKey.trim() });
+          
+          const directResponse = await aiDirect.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [
+              {
+                role: 'user',
+                parts: [{ text: `Execute causal divergence simulation for this prompt in ${targetLangName}:\n\n"${promptToUse.trim()}"` }],
+              },
+            ],
+            config: {
+              systemInstruction: `You are The Oracle Engine, computing counterfactual forecasting. Output strictly in JSON format matching the schema in ${targetLangName}.`,
+              responseMimeType: 'application/json',
+              temperature: 0.7,
+            },
+          });
+
+          if (directResponse.text) {
+            const parsedDirect = JSON.parse(directResponse.text);
+            const normalizedDirect: SimulationResult = {
+              scenario_summary: parsedDirect.scenario_summary || parsedDirect.summary || '',
+              risk_index: parsedDirect.risk_index || { score: 65, category: 'HIGH' },
+              outcomes: parsedDirect.outcomes || { optimistic: '', pessimistic: '' },
+              temporal_impact: parsedDirect.temporal_impact || { one_month: '', one_year: '', five_years: '' },
+              contingency_plan: parsedDirect.contingency_plan || [],
+              search_intent_title: parsedDirect.search_intent_title || promptToUse,
+              source: 'ai_generated',
+            };
+            setResult(normalizedDirect);
+            saveHistoryItem(promptToUse, normalizedDirect);
+            addToast(
+              locale === 'ar' ? 'تم توليد المحاكاة مباشرة عبر مفتاحك' : 'Simulation generated directly using your API key',
+              'success',
+              locale === 'ar' ? 'اتصال مباشر' : 'Direct AI Connection'
+            );
+            return;
+          }
+        } catch (directAiErr: any) {
+          console.error('Direct AI generation error:', directAiErr);
+          const errText = directAiErr?.message || '';
+          if (errText.includes('API_KEY') || errText.includes('400') || errText.includes('401') || errText.includes('403')) {
+            setKeyErrorMsg(
+              locale === 'ar'
+                ? 'مفتاح Gemini API المدخل غير صالح أو انتهت صلاحيته. يرجى كتابة مفتاح صحيح يبدأ بـ AIzaSy...'
+                : 'The Gemini API Key provided is invalid or expired. Please enter a valid key starting with AIzaSy...'
+            );
+            setKeyInput(userApiKey);
+            setIsKeyModalOpen(true);
+            throw new Error(locale === 'ar' ? 'مفتاح API غير صالح' : 'Invalid API Key');
+          }
+          throw directAiErr;
+        }
+      }
+
+      throw new Error(
+        locale === 'ar'
+          ? 'تعذر الاتصال بالذكاء الاصطناعي. يرجى التأكد من صحة المفتاح والمحاولة مجدداً.'
+          : 'Failed to connect to AI engine. Please verify your API key and try again.'
+      );
     } catch (err: any) {
       console.error('Simulation execution error:', err);
       let userFriendlyMsg = err.message || '';
