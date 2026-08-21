@@ -70,9 +70,12 @@ export default function App() {
   // Check on load if the server has an active Gemini key
   useEffect(() => {
     fetch('/api/health')
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) throw new Error('Health check failed');
+        return res.json();
+      })
       .then((data) => {
-        setHasServerKey(!!data.hasServerApiKey);
+        setHasServerKey(!!data?.hasServerApiKey);
       })
       .catch(() => {
         setHasServerKey(false);
@@ -214,7 +217,18 @@ export default function App() {
         }),
       });
 
-      const data = await response.json();
+      let data: any;
+      const responseText = await response.text();
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseErr) {
+        console.error('Server returned non-JSON response:', responseText);
+        throw new Error(
+          locale === 'ar'
+            ? 'تعذر الاتصال بالخادم بشكل صحيح. يرجى التأكد من تشغيل السيرفر أو صحة المفتاح والمحاولة مجدداً.'
+            : 'Received an invalid server response. Please verify the API connection and try again.'
+        );
+      }
 
       // If backend reports that an API key is required or the provided key is invalid
       if (!response.ok && data.needsApiKey) {
