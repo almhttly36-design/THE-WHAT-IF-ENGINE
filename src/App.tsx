@@ -27,7 +27,11 @@ import {
   CloudCheck,
   Compass,
   Dice5,
-  BookOpen
+  BookOpen,
+  Share2,
+  Globe,
+  Check,
+  Copy
 } from 'lucide-react';
 import { SupportedLocale, SimulationResult, HistoryItem } from './types';
 import { localeDirection, localeLabels, Locale } from './config/i18n.config';
@@ -35,7 +39,9 @@ import { getDictionary, Dictionary } from './lib/dictionary';
 import { HistoryJournal } from './components/HistoryJournal';
 import { ToastContainer, ToastMessage } from './components/ToastContainer';
 import { ScenarioExplorer } from './components/ScenarioExplorer';
+import { ShareModal } from './components/ShareModal';
 import { PRESET_SCENARIOS } from './data/presetScenarios';
+import { updatePageSEO } from './lib/seoHelper';
 import { 
   saveSimulationToFirestore, 
   subscribeToSimulations, 
@@ -66,6 +72,7 @@ export default function App() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isExplorerOpen, setIsExplorerOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   // Smart API Key Management: Only shows if missing or failing
@@ -123,6 +130,27 @@ export default function App() {
       console.warn('Failed to save locale to localStorage:', e);
     }
   }, [locale]);
+
+  // Sync Dynamic SEO and Open Graph Meta tags whenever query or result changes
+  useEffect(() => {
+    updatePageSEO(query, result, locale);
+  }, [query, result, locale]);
+
+  // Deep Link Parser: Parse URL on mount (e.g. ?q=... or ?id=...) for direct indexing and sharing
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlQuery = params.get('q');
+      if (urlQuery && urlQuery.trim()) {
+        const decodedPrompt = urlQuery.trim();
+        setQuery(decodedPrompt);
+        // Instant check in cache / simulate
+        handleAnalyze(decodedPrompt);
+      }
+    } catch (e) {
+      console.warn('Failed to parse URL search parameters for deep linking:', e);
+    }
+  }, []);
 
   // Subscribe to Cloud Firestore real-time updates and fallback to LocalStorage
   useEffect(() => {
@@ -825,11 +853,21 @@ export default function App() {
                       <FileText className="w-4 h-4" />
                       <span>{dict.dashboard.summary_label}</span>
                     </div>
-                    {result.search_intent_title && (
-                      <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 truncate max-w-[200px]">
-                        {result.search_intent_title}
-                      </span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsShareModalOpen(true)}
+                        className="px-3 py-1 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                        title={locale === 'ar' ? 'مشاركة رابط السؤال المفهرس' : 'Share scenario deep link'}
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        <span>{locale === 'ar' ? 'مشاركة الرابط' : 'Share Link'}</span>
+                      </button>
+                      {result.search_intent_title && (
+                        <span className="hidden sm:inline-block text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 truncate max-w-[200px]">
+                          {result.search_intent_title}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <p className="text-zinc-100 text-sm sm:text-base leading-relaxed font-sans font-medium">
                     {result.scenario_summary}
@@ -1173,6 +1211,17 @@ export default function App() {
         }}
         locale={locale}
       />
+
+      {/* Deep Link Scenario Share Modal for Social & Googlebot */}
+      {result && (
+        <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          prompt={query}
+          result={result}
+          locale={locale}
+        />
+      )}
 
       {/* Toast Notification Container */}
       <ToastContainer toasts={toasts} onDismiss={handleDismissToast} />
