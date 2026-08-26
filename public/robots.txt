@@ -1,69 +1,97 @@
 # ==============================================================================
-# The What If Engine - Advanced Enterprise robots.txt
-# Optimized for Ultra-Fast Instant Crawling by Googlebot, Bingbot & Search AI Agents
+# The What If Engine | Enterprise Multi-Lingual robots.txt
+# Official Production Domain: https://the-what-if-engine.vercel.app/
+# Built for Maximum Crawl Velocity across Google, Bing, Apple, Yandex, Baidu & AI Bots
 # ==============================================================================
 
-# Global Rules for All Web Crawlers & AI Search Bots
+# Global Rules for All Web Crawlers & AI Search Engines
 User-agent: *
 Allow: /
+Allow: /?*
 Allow: /?q=*
+Allow: /?lang=*
+Allow: /?q=*&lang=*
+Allow: /ar
+Allow: /en
+Allow: /es
+Allow: /fr
+Allow: /de
+Allow: /zh
+Allow: /ja
+Allow: /ru
 Allow: /sitemap.xml
 Allow: /sitemap-realtime.xml
+Allow: /sitemap-ar.xml
+Allow: /sitemap-en.xml
 Allow: /api/live-scenarios
 Disallow: /api/simulate
 Disallow: /api/health
 Disallow: /api/supabase-status
 
-# Google Search Crawler (Googlebot) Priority Directives
+# Google Search (Googlebot Desktop & Smartphone Mobile-First Indexing)
 User-agent: Googlebot
+User-agent: Googlebot-Mobile
+User-agent: Googlebot-Image
+User-agent: Googlebot-News
 Allow: /
+Allow: /?*
 Allow: /?q=*
+Allow: /?lang=*
 Allow: /sitemap.xml
 Allow: /sitemap-realtime.xml
 
-# Google Smartphone & Mobile-First Indexing
-User-agent: Googlebot-Mobile
-Allow: /
-Allow: /?q=*
-
-# Google Image Search
-User-agent: Googlebot-Image
-Allow: /
-
-# Bing & Microsoft Copilot Bot
+# Bing & Microsoft Copilot Search Bot
 User-agent: Bingbot
+User-agent: msnbot
 Allow: /
+Allow: /?*
 Allow: /?q=*
+Allow: /?lang=*
 
-# Apple Search Bot
+# Apple Search Bot (Siri & Spotlight Suggestions)
 User-agent: Applebot
 Allow: /
+Allow: /?*
 Allow: /?q=*
 
 # DuckDuckGo Bot
 User-agent: DuckDuckBot
 Allow: /
-Allow: /?q=*
+Allow: /?*
 
-# OpenAI Search & ChatGPT Crawlers
+# Yandex (Russian Search Engine)
+User-agent: Yandex
+Allow: /
+Allow: /?*
+
+# Baidu (Chinese Search Engine)
+User-agent: Baiduspider
+Allow: /
+Allow: /?*
+
+# Naver (Korean Search Engine)
+User-agent: Yeti
+Allow: /
+Allow: /?*
+
+# AI Search & Retrieval Crawlers (OpenAI, ChatGPT, Perplexity, Claude, Meta)
 User-agent: GPTBot
-Allow: /
-Allow: /?q=*
-
 User-agent: ChatGPT-User
-Allow: /
-Allow: /?q=*
-
-# Anthropic Claude Search Bot
-User-agent: Claude-Web
-Allow: /
-Allow: /?q=*
-
-# Perplexity AI Engine
 User-agent: PerplexityBot
+User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: FacebookBot
+User-agent: Meta-ExternalAgent
+User-agent: OAI-SearchBot
 Allow: /
+Allow: /?*
 Allow: /?q=*
+Allow: /?lang=*
 
-# Dynamic Sitemaps (Updated Real-Time with every added scenario)
-Sitemap: https://ais-pre-ojfolwgzekmid6f6iri53u-130659758726.europe-west2.run.app/sitemap.xml
-Sitemap: https://ais-pre-ojfolwgzekmid6f6iri53u-130659758726.europe-west2.run.app/sitemap-realtime.xml
+# Host Directive for Canonical Production Mirroring
+Host: https://the-what-if-engine.vercel.app
+
+# Multi-Lingual & Real-Time Production Sitemaps
+Sitemap: https://the-what-if-engine.vercel.app/sitemap.xml
+Sitemap: https://the-what-if-engine.vercel.app/sitemap-realtime.xml

@@ -42,6 +42,9 @@ import { ScenarioExplorer } from './components/ScenarioExplorer';
 import { ShareModal } from './components/ShareModal';
 import { AdBanner } from './components/AdBanner';
 import { NativeAdWidget } from './components/NativeAdWidget';
+import { SponsoredDirectLink } from './components/SponsoredDirectLink';
+import { DesktopSkyscraperAds } from './components/DesktopSkyscraperAds';
+import { StickyMobileAdBar } from './components/StickyMobileAdBar';
 import { PRESET_SCENARIOS } from './data/presetScenarios';
 import { updatePageSEO } from './lib/seoHelper';
 import { 
@@ -652,6 +655,9 @@ export default function App() {
       {/* Main Container */}
       <main className="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-8 sm:py-12 flex flex-col items-center">
         
+        {/* Desktop Skyscraper Sticky Side Banners (160x600 & 160x300) */}
+        <DesktopSkyscraperAds />
+        
         {/* Top Status Badge */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/50 border border-cyan-500/30 text-cyan-400 text-xs font-mono tracking-wider uppercase mb-6 shadow-inner">
           <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
@@ -809,7 +815,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* Feature Specs Badges */}
+        {/* Feature Specs Badges + Sponsored Quantum Partners Badge */}
         <div className="mt-4 mb-3 flex flex-wrap items-center justify-center gap-3 max-w-3xl mx-auto">
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-zinc-400 text-xs font-mono">
             <Cpu className="w-3.5 h-3.5 text-cyan-400" />
@@ -823,6 +829,7 @@ export default function App() {
             <History className="w-3.5 h-3.5 text-emerald-400" />
             <span>{dict.home.badges.historical}</span>
           </div>
+          <SponsoredDirectLink variant="badge" />
         </div>
 
         {/* Top Responsive Ad Placement (Leaderboard 728x90 on Desktop / Mobile 320x50) */}
@@ -1180,6 +1187,9 @@ export default function App() {
               </div>
             </div>
 
+            {/* Sponsored High-Converting Quantum Partner Banner */}
+            <SponsoredDirectLink variant="banner" />
+
             {/* Bottom Sponsored Content (Native Ad Widget) */}
             <NativeAdWidget />
 
@@ -1197,6 +1207,9 @@ export default function App() {
         )}
 
       </main>
+
+      {/* Sticky Mobile Floating Ad Bar (320x50) */}
+      <StickyMobileAdBar />
 
       {/* Futuristic Footer */}
       <footer className="relative z-10 border-t border-zinc-900/80 bg-zinc-950/70 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-zinc-500">

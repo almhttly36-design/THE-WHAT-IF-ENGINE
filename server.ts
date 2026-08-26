@@ -440,12 +440,15 @@ You MUST output strictly in the requested target language: ${targetLangName}. Al
 // ==============================================================================
 
 // Dynamic Live XML Sitemap for Googlebot & Search Bots (Real-Time Indexing)
-app.get(['/sitemap.xml', '/sitemap-realtime.xml'], async (req, res) => {
+app.get(['/sitemap.xml', '/sitemap-realtime.xml', '/sitemap-ar.xml', '/sitemap-en.xml'], async (req, res) => {
   try {
-    const host = req.get('host') || 'localhost:3000';
-    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
+    const host = req.get('host') || 'the-what-if-engine.vercel.app';
+    const isVercel = host.includes('vercel.app');
+    const protocol = isVercel ? 'https' : (req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http');
+    const baseUrl = isVercel ? 'https://the-what-if-engine.vercel.app' : `${protocol}://${host}`;
     const nowIso = new Date().toISOString();
+
+    const supportedLanguages = ['ar', 'en', 'es', 'fr', 'de', 'zh', 'ja', 'ru'];
 
     const presetQuestions = [
       'ماذا لو لم تسقط الأندلس واستمرت كقوة علمية وصناعية رائدة حتى العصر الحديث؟',
@@ -476,21 +479,22 @@ app.get(['/sitemap.xml', '/sitemap-realtime.xml'], async (req, res) => {
     ];
 
     // Fetch dynamic live scenarios saved in Supabase in real time
-    const livePrompts: { prompt: string; created_at?: string }[] = [];
+    const livePrompts: { prompt: string; created_at?: string; language?: string }[] = [];
     const supabase = getSupabaseClient();
     if (supabase) {
       try {
         const { data: dbScenarios, error } = await supabase
           .from('scenarios')
-          .select('prompt, created_at')
+          .select('prompt, language, created_at')
           .order('created_at', { ascending: false })
-          .limit(200);
+          .limit(300);
 
         if (!error && dbScenarios) {
           for (const item of dbScenarios) {
             if (item.prompt && typeof item.prompt === 'string' && item.prompt.trim()) {
               livePrompts.push({
                 prompt: item.prompt.trim(),
+                language: item.language || 'ar',
                 created_at: item.created_at || nowIso,
               });
             }
@@ -501,26 +505,46 @@ app.get(['/sitemap.xml', '/sitemap-realtime.xml'], async (req, res) => {
       }
     }
 
-    // Build ultra-compliant XML sitemap for Search Crawlers
+    // Build ultra-compliant XML sitemap for Search Crawlers with Hreflang support
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <!-- Root Application Landing -->
+  <!-- Root Multi-lingual Application Landings -->
   <url>
     <loc>${baseUrl}/</loc>
+    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="${baseUrl}/?lang=ar" />
+    <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/?lang=en" />
+    <xhtml:link rel="alternate" hreflang="es" href="${baseUrl}/?lang=es" />
+    <xhtml:link rel="alternate" hreflang="fr" href="${baseUrl}/?lang=fr" />
+    <xhtml:link rel="alternate" hreflang="de" href="${baseUrl}/?lang=de" />
+    <xhtml:link rel="alternate" hreflang="zh" href="${baseUrl}/?lang=zh" />
+    <xhtml:link rel="alternate" hreflang="ja" href="${baseUrl}/?lang=ja" />
+    <xhtml:link rel="alternate" hreflang="ru" href="${baseUrl}/?lang=ru" />
     <lastmod>${nowIso}</lastmod>
     <changefreq>always</changefreq>
     <priority>1.0</priority>
   </url>`;
 
-    // Include dynamically created scenarios (live instant additions)
+    // Language entry points
+    for (const lang of supportedLanguages) {
+      xml += `
+  <url>
+    <loc>${baseUrl}/?lang=${lang}</loc>
+    <lastmod>${nowIso}</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.95</priority>
+  </url>`;
+    }
+
+    // Include dynamically created scenarios (live instant additions across all users)
     const seenPrompts = new Set<string>();
     for (const item of livePrompts) {
       seenPrompts.add(item.prompt.toLowerCase());
       const encodedQuery = encodeURIComponent(item.prompt);
-      const url = `${baseUrl}/?q=${encodedQuery}`;
+      const itemLang = item.language || 'ar';
+      const url = `${baseUrl}/?q=${encodedQuery}&amp;lang=${itemLang}`;
       xml += `
   <url>
     <loc>${url}</loc>
@@ -584,71 +608,116 @@ app.get('/api/live-scenarios', async (req, res) => {
   }
 });
 
+// Google Search Console HTML verification endpoint
+app.get('/googlef6b1e3a2885603f3.html', (req, res) => {
+  res.type('text/html; charset=utf-8');
+  res.send('google-site-verification: googlef6b1e3a2885603f3.html');
+});
+
 // Dynamic Ultra-Professional robots.txt
 app.get('/robots.txt', (req, res) => {
-  const host = req.get('host') || 'localhost:3000';
-  const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
-  const baseUrl = `${protocol}://${host}`;
+  const host = req.get('host') || 'the-what-if-engine.vercel.app';
+  const isVercel = host.includes('vercel.app');
+  const protocol = isVercel ? 'https' : (req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http');
+  const baseUrl = isVercel ? 'https://the-what-if-engine.vercel.app' : `${protocol}://${host}`;
 
   res.type('text/plain; charset=utf-8');
   res.header('Cache-Control', 'public, max-age=3600');
   res.send(`# ==============================================================================
-# The What If Engine - Enterprise Robots Exclusion & Indexing Directives
-# Optimized for Googlebot, Bingbot, Applebot, GPTBot, Perplexity & AI Search Crawlers
+# The What If Engine | Enterprise Multi-Lingual robots.txt
+# Production Domain: ${baseUrl}
+# Optimized for Googlebot, Bingbot, Applebot, Yandex, Baidu, GPTBot & AI Crawlers
 # ==============================================================================
 
-# Global Rules for All Crawlers
+# Global Rules for All Crawlers & AI Search Engines
 User-agent: *
 Allow: /
+Allow: /?*
 Allow: /?q=*
+Allow: /?lang=*
+Allow: /?q=*&lang=*
+Allow: /ar
+Allow: /en
+Allow: /es
+Allow: /fr
+Allow: /de
+Allow: /zh
+Allow: /ja
+Allow: /ru
 Allow: /sitemap.xml
 Allow: /sitemap-realtime.xml
+Allow: /sitemap-ar.xml
+Allow: /sitemap-en.xml
 Allow: /api/live-scenarios
 Disallow: /api/simulate
 Disallow: /api/health
 Disallow: /api/supabase-status
 
-# Google Search (Googlebot Desktop & Smartphone)
+# Google Search (Googlebot Desktop, Smartphone & Image Indexing)
 User-agent: Googlebot
+User-agent: Googlebot-Mobile
+User-agent: Googlebot-Image
+User-agent: Googlebot-News
 Allow: /
+Allow: /?*
 Allow: /?q=*
+Allow: /?lang=*
 Allow: /sitemap.xml
 Allow: /sitemap-realtime.xml
 
-User-agent: Googlebot-Mobile
-Allow: /
-Allow: /?q=*
-
-User-agent: Googlebot-Image
-Allow: /
-
-# Bing Search (Bingbot)
+# Bing Search (Bingbot & Copilot)
 User-agent: Bingbot
+User-agent: msnbot
 Allow: /
+Allow: /?*
 Allow: /?q=*
+Allow: /?lang=*
+
+# Apple Search Bot
+User-agent: Applebot
+Allow: /
+Allow: /?*
+Allow: /?q=*
+
+# DuckDuckGo Bot
+User-agent: DuckDuckBot
+Allow: /
+Allow: /?*
+
+# Yandex (Russian Search Engine)
+User-agent: Yandex
+Allow: /
+Allow: /?*
+
+# Baidu (Chinese Search Engine)
+User-agent: Baiduspider
+Allow: /
+Allow: /?*
+
+# Naver (Korean Search Engine)
+User-agent: Yeti
+Allow: /
+Allow: /?*
 
 # AI Search & Summarization Engines
 User-agent: GPTBot
-Allow: /
-Allow: /?q=*
-
 User-agent: ChatGPT-User
-Allow: /
-Allow: /?q=*
-
 User-agent: PerplexityBot
-Allow: /
-Allow: /?q=*
-
 User-agent: Claude-Web
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: FacebookBot
+User-agent: Meta-ExternalAgent
+User-agent: OAI-SearchBot
 Allow: /
+Allow: /?*
 Allow: /?q=*
+Allow: /?lang=*
 
-User-agent: Applebot
-Allow: /
-Allow: /?q=*
+# Host Directive for Canonical Production Mirroring
+Host: ${baseUrl}
 
-# Real-Time Dynamic Sitemaps (Live updated on every new question)
+# Real-Time Dynamic Multi-Lingual Sitemaps
 Sitemap: ${baseUrl}/sitemap.xml
 Sitemap: ${baseUrl}/sitemap-realtime.xml
 `);
