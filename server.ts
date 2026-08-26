@@ -435,65 +435,222 @@ You MUST output strictly in the requested target language: ${targetLangName}. Al
   }
 });
 
-// Dynamic XML Sitemap for Googlebot Crawling & Search Indexing
-app.get('/sitemap.xml', async (req, res) => {
+// ==============================================================================
+// SEO & REAL-TIME CRAWLER INFRASTRUCTURE (Googlebot, Bing, Perplexity, GPTBot)
+// ==============================================================================
+
+// Dynamic Live XML Sitemap for Googlebot & Search Bots (Real-Time Indexing)
+app.get(['/sitemap.xml', '/sitemap-realtime.xml'], async (req, res) => {
   try {
     const host = req.get('host') || 'localhost:3000';
     const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
     const baseUrl = `${protocol}://${host}`;
+    const nowIso = new Date().toISOString();
 
-    const presetUrls = [
-      'ماذا-لو-لم-تسقط-الأندلس-واستمرت-كقوة-علمية-وصناعية',
-      'ماذا-لو-نجت-مكتبة-الإسكندرية-ولم-تحترق',
-      'ماذا-لو-لم-يدمر-المغول-بغداد-ودار-الحكمة-1258',
-      'ماذا-لو-تجنب-العالم-الحرب-العالمية-الأولى',
-      'ماذا-لو-ظهر-الذكاء-الاصطناعي-العام-1980',
-      'ماذا-لو-تم-إتقان-الاندماج-النووي-النظيف-مجانا',
-      'ماذا-لو-انقطع-الإنترنت-عن-العالم-لمدة-عام',
-      'ماذا-لو-تحولت-الصحراء-الكبرى-إلى-غابات-خضراء',
-      'ماذا-لو-انخفضت-جاذبية-الأرض-50-بالمئة',
-      'ماذا-لو-تأسست-مستعمرة-المريخ-2030',
-      'ماذا-لو-اكتشف-محرك-سفر-أسرع-من-الضوء',
-      'ماذا-لو-طبق-الدخل-الأساسي-الشامل-2000-دولار',
-      'ماذا-لو-ولد-البشر-بقدرة-التخاطر-دون-كذب',
-      'ماذا-لو-اكتشف-علاج-يوقف-الشيخوخة-والخلود',
+    const presetQuestions = [
+      'ماذا لو لم تسقط الأندلس واستمرت كقوة علمية وصناعية رائدة حتى العصر الحديث؟',
+      'ماذا لو نجت مكتبة الإسكندرية بالكامل ولم تحترق مخطوطاتها وعلومها القديمة؟',
+      'ماذا لو لم يدمر المغول بغداد ودار الحكمة في عام 1258؟',
+      'ماذا لو فشلت حادثة اغتيال الأرشيدوق فرانز فرديناند وتجنب العالم الحرب العالمية الأولى؟',
+      'ماذا لو لم تبدأ رحلات كولومبوس عام 1492 وتطورت حضارات المايا والإنكا والأزتيك باستقلالية؟',
+      'ماذا لو ظهر الذكاء الاصطناعي العام (AGI) في عام 1980 مع بداية الحواسيب الشخصية؟',
+      'ماذا لو تم إتقان الاندماج النووي النظيف اللامحدود غداً وتوفير الكهرباء مجاناً لجميع سكان الأرض؟',
+      'ماذا لو انقطع الإنترنت والشبكات السحابية تماماً عن العالم لمدة عام كامل؟',
+      'ماذا لو نجح حاسوب كمومي فائق في كسر جميع بروتوكولات التشفير في العالم فجأة؟',
+      'ماذا لو تحولت الصحراء الكبرى في إفريقيا إلى غابات خضراء وأنهار عذبة دائمة؟',
+      'ماذا لو انخفضت جاذبية كوكب الأرض فجأة بنسبة 50% مع الحفاظ على الغلاف الجوي؟',
+      'ماذا لو تم القضاء على جميع الفيروسات ومسببات الأمراض المعدية للبشر في 24 ساعة؟',
+      'ماذا لو نجح البشر في تأسيس مستعمرة مريخية مكتفية ذاتياً يقطنها 100,000 إنسان بحلول 2030؟',
+      'ماذا لو تم اكتشاف محرك اعوجاج فضائي يتيح السفر بأسرع من الضوء؟',
+      'ماذا لو طبقت جميع دول العالم دخلاً أساسياً شاملاً غير مشروط يعادل 2000 دولار شهرياً؟',
+      'ماذا لو اتفقت دول العالم على إلغاء جميع العملات المحلية واستخدام عملة رقمية مشفرة واحدة؟',
+      'ماذا لو ولد جميع البشر بقدرة فطرية على قراءة أفكار ومشاعر الآخرين بشفافية كاملة؟',
+      'ماذا لو اكتشف علم الوراثة علاجاً يوقف الشيخوخة البيولوجية ويمنح الإنسان خلوداً جسدياً؟',
+      'What if Al-Andalus never fell and continued as a scientific and industrial powerhouse into the modern era?',
+      'What if the Library of Alexandria was never destroyed and all ancient lost scientific scrolls survived?',
+      'What if the Mongol siege of Baghdad in 1258 was repelled and the House of Wisdom remained intact?',
+      'What if Artificial General Intelligence (AGI) emerged in 1980 alongside early microcomputers?',
+      'What if limitless zero-emission nuclear fusion energy was achieved tomorrow and distributed for free?',
+      'What if a self-sustaining Martian civilization of 100,000 residents was fully established by 2030?',
+      'What if genetic science completely halted biological aging, granting humans indefinite cellular lifespan?'
     ];
 
+    // Fetch dynamic live scenarios saved in Supabase in real time
+    const livePrompts: { prompt: string; created_at?: string }[] = [];
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      try {
+        const { data: dbScenarios, error } = await supabase
+          .from('scenarios')
+          .select('prompt, created_at')
+          .order('created_at', { ascending: false })
+          .limit(200);
+
+        if (!error && dbScenarios) {
+          for (const item of dbScenarios) {
+            if (item.prompt && typeof item.prompt === 'string' && item.prompt.trim()) {
+              livePrompts.push({
+                prompt: item.prompt.trim(),
+                created_at: item.created_at || nowIso,
+              });
+            }
+          }
+        }
+      } catch (dbErr) {
+        console.warn('[Sitemap Live Query Warning]:', dbErr);
+      }
+    }
+
+    // Build ultra-compliant XML sitemap for Search Crawlers
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Root Application Landing -->
   <url>
     <loc>${baseUrl}/</loc>
-    <changefreq>daily</changefreq>
+    <lastmod>${nowIso}</lastmod>
+    <changefreq>always</changefreq>
     <priority>1.0</priority>
   </url>`;
 
-    for (const slug of presetUrls) {
+    // Include dynamically created scenarios (live instant additions)
+    const seenPrompts = new Set<string>();
+    for (const item of livePrompts) {
+      seenPrompts.add(item.prompt.toLowerCase());
+      const encodedQuery = encodeURIComponent(item.prompt);
+      const url = `${baseUrl}/?q=${encodedQuery}`;
       xml += `
   <url>
-    <loc>${baseUrl}/?q=${encodeURIComponent(slug.replace(/-/g, ' '))}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>${url}</loc>
+    <lastmod>${item.created_at ? new Date(item.created_at).toISOString() : nowIso}</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
   </url>`;
+    }
+
+    // Include preset scenario universe
+    for (const prompt of presetQuestions) {
+      if (!seenPrompts.has(prompt.toLowerCase())) {
+        const encodedQuery = encodeURIComponent(prompt);
+        const url = `${baseUrl}/?q=${encodedQuery}`;
+        xml += `
+  <url>
+    <loc>${url}</loc>
+    <lastmod>${nowIso}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>`;
+      }
     }
 
     xml += `
 </urlset>`;
 
-    res.header('Content-Type', 'application/xml');
+    res.header('Content-Type', 'application/xml; charset=utf-8');
+    res.header('Cache-Control', 'public, max-age=60, s-maxage=60'); // Fresh every minute
     res.send(xml);
   } catch (err) {
+    console.error('Error generating dynamic sitemap:', err);
     res.status(500).send('Error generating sitemap');
   }
 });
 
-// Dynamic robots.txt
+// JSON Feed for AI Search Crawlers & IndexNow protocols
+app.get('/api/live-scenarios', async (req, res) => {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return res.json({ success: true, count: 0, items: [] });
+  }
+  try {
+    const { data, error } = await supabase
+      .from('scenarios')
+      .select('id, prompt, language, created_at')
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (error) {
+      return res.json({ success: false, error: error.message, items: [] });
+    }
+    return res.json({
+      success: true,
+      count: data?.length || 0,
+      timestamp: new Date().toISOString(),
+      items: data || [],
+    });
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err?.message || 'Server error' });
+  }
+});
+
+// Dynamic Ultra-Professional robots.txt
 app.get('/robots.txt', (req, res) => {
   const host = req.get('host') || 'localhost:3000';
   const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
-  res.type('text/plain');
-  res.send(`User-agent: *
+  const baseUrl = `${protocol}://${host}`;
+
+  res.type('text/plain; charset=utf-8');
+  res.header('Cache-Control', 'public, max-age=3600');
+  res.send(`# ==============================================================================
+# The What If Engine - Enterprise Robots Exclusion & Indexing Directives
+# Optimized for Googlebot, Bingbot, Applebot, GPTBot, Perplexity & AI Search Crawlers
+# ==============================================================================
+
+# Global Rules for All Crawlers
+User-agent: *
 Allow: /
-Sitemap: ${protocol}://${host}/sitemap.xml
+Allow: /?q=*
+Allow: /sitemap.xml
+Allow: /sitemap-realtime.xml
+Allow: /api/live-scenarios
+Disallow: /api/simulate
+Disallow: /api/health
+Disallow: /api/supabase-status
+
+# Google Search (Googlebot Desktop & Smartphone)
+User-agent: Googlebot
+Allow: /
+Allow: /?q=*
+Allow: /sitemap.xml
+Allow: /sitemap-realtime.xml
+
+User-agent: Googlebot-Mobile
+Allow: /
+Allow: /?q=*
+
+User-agent: Googlebot-Image
+Allow: /
+
+# Bing Search (Bingbot)
+User-agent: Bingbot
+Allow: /
+Allow: /?q=*
+
+# AI Search & Summarization Engines
+User-agent: GPTBot
+Allow: /
+Allow: /?q=*
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /?q=*
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /?q=*
+
+User-agent: Claude-Web
+Allow: /
+Allow: /?q=*
+
+User-agent: Applebot
+Allow: /
+Allow: /?q=*
+
+# Real-Time Dynamic Sitemaps (Live updated on every new question)
+Sitemap: ${baseUrl}/sitemap.xml
+Sitemap: ${baseUrl}/sitemap-realtime.xml
 `);
 });
 

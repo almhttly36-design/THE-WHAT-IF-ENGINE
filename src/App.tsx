@@ -40,6 +40,8 @@ import { HistoryJournal } from './components/HistoryJournal';
 import { ToastContainer, ToastMessage } from './components/ToastContainer';
 import { ScenarioExplorer } from './components/ScenarioExplorer';
 import { ShareModal } from './components/ShareModal';
+import { AdBanner } from './components/AdBanner';
+import { NativeAdWidget } from './components/NativeAdWidget';
 import { PRESET_SCENARIOS } from './data/presetScenarios';
 import { updatePageSEO } from './lib/seoHelper';
 import { 
@@ -808,7 +810,7 @@ export default function App() {
         </div>
 
         {/* Feature Specs Badges */}
-        <div className="mt-4 mb-6 flex flex-wrap items-center justify-center gap-3 max-w-3xl mx-auto">
+        <div className="mt-4 mb-3 flex flex-wrap items-center justify-center gap-3 max-w-3xl mx-auto">
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-zinc-400 text-xs font-mono">
             <Cpu className="w-3.5 h-3.5 text-cyan-400" />
             <span>{dict.home.badges.ai_models}</span>
@@ -820,6 +822,16 @@ export default function App() {
           <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-zinc-400 text-xs font-mono">
             <History className="w-3.5 h-3.5 text-emerald-400" />
             <span>{dict.home.badges.historical}</span>
+          </div>
+        </div>
+
+        {/* Top Responsive Ad Placement (Leaderboard 728x90 on Desktop / Mobile 320x50) */}
+        <div className="w-full flex justify-center my-2">
+          <div className="hidden sm:block">
+            <AdBanner slot="leaderboard_728x90" />
+          </div>
+          <div className="block sm:hidden">
+            <AdBanner slot="mobile_320x50" />
           </div>
         </div>
 
@@ -1053,6 +1065,11 @@ export default function App() {
               </div>
             </div>
 
+            {/* In-Content Sponsored Ad Slot (Medium Rectangle 300x250) */}
+            <div className="w-full flex justify-center my-1">
+              <AdBanner slot="rectangle_300x250" />
+            </div>
+
             {/* Requirement 3: Temporal Impact Grid (3 Sleek Cards) */}
             <div className="p-6 sm:p-7 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 backdrop-blur-2xl shadow-xl">
               <div className="flex items-center justify-between mb-5">
@@ -1160,6 +1177,19 @@ export default function App() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Bottom Sponsored Content (Native Ad Widget) */}
+            <NativeAdWidget />
+
+            {/* Bottom Responsive Banner (468x60 / 320x50) */}
+            <div className="w-full flex justify-center mt-2 mb-4">
+              <div className="hidden sm:block">
+                <AdBanner slot="banner_468x60" />
+              </div>
+              <div className="block sm:hidden">
+                <AdBanner slot="mobile_320x50" />
               </div>
             </div>
 

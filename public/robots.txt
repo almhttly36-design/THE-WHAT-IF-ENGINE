@@ -1,0 +1,69 @@
+# ==============================================================================
+# The What If Engine - Advanced Enterprise robots.txt
+# Optimized for Ultra-Fast Instant Crawling by Googlebot, Bingbot & Search AI Agents
+# ==============================================================================
+
+# Global Rules for All Web Crawlers & AI Search Bots
+User-agent: *
+Allow: /
+Allow: /?q=*
+Allow: /sitemap.xml
+Allow: /sitemap-realtime.xml
+Allow: /api/live-scenarios
+Disallow: /api/simulate
+Disallow: /api/health
+Disallow: /api/supabase-status
+
+# Google Search Crawler (Googlebot) Priority Directives
+User-agent: Googlebot
+Allow: /
+Allow: /?q=*
+Allow: /sitemap.xml
+Allow: /sitemap-realtime.xml
+
+# Google Smartphone & Mobile-First Indexing
+User-agent: Googlebot-Mobile
+Allow: /
+Allow: /?q=*
+
+# Google Image Search
+User-agent: Googlebot-Image
+Allow: /
+
+# Bing & Microsoft Copilot Bot
+User-agent: Bingbot
+Allow: /
+Allow: /?q=*
+
+# Apple Search Bot
+User-agent: Applebot
+Allow: /
+Allow: /?q=*
+
+# DuckDuckGo Bot
+User-agent: DuckDuckBot
+Allow: /
+Allow: /?q=*
+
+# OpenAI Search & ChatGPT Crawlers
+User-agent: GPTBot
+Allow: /
+Allow: /?q=*
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /?q=*
+
+# Anthropic Claude Search Bot
+User-agent: Claude-Web
+Allow: /
+Allow: /?q=*
+
+# Perplexity AI Engine
+User-agent: PerplexityBot
+Allow: /
+Allow: /?q=*
+
+# Dynamic Sitemaps (Updated Real-Time with every added scenario)
+Sitemap: https://ais-pre-ojfolwgzekmid6f6iri53u-130659758726.europe-west2.run.app/sitemap.xml
+Sitemap: https://ais-pre-ojfolwgzekmid6f6iri53u-130659758726.europe-west2.run.app/sitemap-realtime.xml
