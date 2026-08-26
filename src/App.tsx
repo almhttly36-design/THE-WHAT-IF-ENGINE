@@ -570,8 +570,13 @@ export default function App() {
       {/* Top Header Navigation Bar */}
       <header className="relative z-20 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-xl px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-inner">
-            <Cpu className="w-4 h-4" />
+          <div className="relative w-9 h-9 rounded-xl overflow-hidden p-0.5 bg-gradient-to-br from-cyan-500 via-indigo-500 to-purple-600 shadow-[0_0_15px_rgba(6,182,212,0.35)] group cursor-pointer">
+            <img 
+              src="/favicon.png" 
+              alt="The What If Engine Icon" 
+              className="w-full h-full object-cover rounded-[10px]"
+              referrerPolicy="no-referrer"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2">
