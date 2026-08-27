@@ -714,12 +714,11 @@ Allow: /?*
 Allow: /?q=*
 Allow: /?lang=*
 
-# Host Directive for Canonical Production Mirroring
-Host: ${baseUrl}
-
 # Real-Time Dynamic Multi-Lingual Sitemaps
 Sitemap: ${baseUrl}/sitemap.xml
 Sitemap: ${baseUrl}/sitemap-realtime.xml
+Sitemap: ${baseUrl}/sitemap-ar.xml
+Sitemap: ${baseUrl}/sitemap-en.xml
 `);
 });
 
