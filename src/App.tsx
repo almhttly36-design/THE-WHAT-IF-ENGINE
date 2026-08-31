@@ -34,6 +34,7 @@ import {
   Copy
 } from 'lucide-react';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { SupportedLocale, SimulationResult, HistoryItem } from './types';
 import { localeDirection, localeLabels, Locale } from './config/i18n.config';
 import { getDictionary, Dictionary } from './lib/dictionary';
@@ -1409,6 +1410,7 @@ export default function App() {
         </div>
       )}
       <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
