@@ -442,10 +442,10 @@ You MUST output strictly in the requested target language: ${targetLangName}. Al
 // Dynamic Live XML Sitemap for Googlebot & Search Bots (Real-Time Indexing)
 app.get(['/sitemap.xml', '/sitemap-realtime.xml', '/sitemap-ar.xml', '/sitemap-en.xml'], async (req, res) => {
   try {
-    const host = req.get('host') || 'the-what-if-engine.vercel.app';
+    const host = req.get('host') || 'whatifsearch.vercel.app';
     const isVercel = host.includes('vercel.app');
     const protocol = isVercel ? 'https' : (req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http');
-    const baseUrl = isVercel ? 'https://the-what-if-engine.vercel.app' : `${protocol}://${host}`;
+    const baseUrl = isVercel ? 'https://whatifsearch.vercel.app' : `${protocol}://${host}`;
     const nowIso = new Date().toISOString();
 
     const supportedLanguages = ['ar', 'en', 'es', 'fr', 'de', 'zh', 'ja', 'ru'];
@@ -616,10 +616,10 @@ app.get('/googlef6b1e3a2885603f3.html', (req, res) => {
 
 // Dynamic Ultra-Professional robots.txt
 app.get('/robots.txt', (req, res) => {
-  const host = req.get('host') || 'the-what-if-engine.vercel.app';
+  const host = req.get('host') || 'whatifsearch.vercel.app';
   const isVercel = host.includes('vercel.app');
   const protocol = isVercel ? 'https' : (req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http');
-  const baseUrl = isVercel ? 'https://the-what-if-engine.vercel.app' : `${protocol}://${host}`;
+  const baseUrl = isVercel ? 'https://whatifsearch.vercel.app' : `${protocol}://${host}`;
 
   res.type('text/plain; charset=utf-8');
   res.header('Cache-Control', 'public, max-age=3600');

@@ -1,6 +1,6 @@
 # ==============================================================================
 # The What If Engine | Enterprise Multi-Lingual robots.txt
-# Official Production Domain: https://the-what-if-engine.vercel.app/
+# Official Production Domain: https://whatifsearch.vercel.app/
 # Built for Maximum Crawl Velocity across Google, Bing, Apple, Yandex, Baidu & AI Bots
 # ==============================================================================
 
@@ -90,7 +90,7 @@ Allow: /?q=*
 Allow: /?lang=*
 
 # Multi-Lingual & Real-Time Production Sitemaps
-Sitemap: https://the-what-if-engine.vercel.app/sitemap.xml
-Sitemap: https://the-what-if-engine.vercel.app/sitemap-realtime.xml
-Sitemap: https://the-what-if-engine.vercel.app/sitemap-ar.xml
-Sitemap: https://the-what-if-engine.vercel.app/sitemap-en.xml
+Sitemap: https://whatifsearch.vercel.app/sitemap.xml
+Sitemap: https://whatifsearch.vercel.app/sitemap-realtime.xml
+Sitemap: https://whatifsearch.vercel.app/sitemap-ar.xml
+Sitemap: https://whatifsearch.vercel.app/sitemap-en.xml
