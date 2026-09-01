@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 
 export type AdSlotType = 
   | 'leaderboard_728x90' 
@@ -14,103 +14,63 @@ interface AdBannerProps {
   showLabel?: boolean;
 }
 
-const AD_CONFIGS: Record<AdSlotType, { key: string; width: number; height: number; scriptUrl: string }> = {
+const AD_DIMENSIONS: Record<AdSlotType, { width: number; height: number; path: string }> = {
   leaderboard_728x90: {
-    key: 'e23c2a80ff8e551297d1f4a5762287d5',
     width: 728,
     height: 90,
-    scriptUrl: 'https://dependedunmoved.com/e23c2a80ff8e551297d1f4a5762287d5/invoke.js',
+    path: '/ads/leaderboard_728x90.html',
   },
   mobile_320x50: {
-    key: 'df496dfc08aa204fb76ad80761fd6560',
     width: 320,
     height: 50,
-    scriptUrl: 'https://dependedunmoved.com/df496dfc08aa204fb76ad80761fd6560/invoke.js',
+    path: '/ads/mobile_320x50.html',
   },
   rectangle_300x250: {
-    key: 'd1c9deb2d9a3041feca5e4c257d52dc0',
     width: 300,
     height: 250,
-    scriptUrl: 'https://dependedunmoved.com/d1c9deb2d9a3041feca5e4c257d52dc0/invoke.js',
+    path: '/ads/rectangle_300x250.html',
   },
   banner_468x60: {
-    key: '052a31ec6630bf924a2d4f12044da94b',
     width: 468,
     height: 60,
-    scriptUrl: 'https://dependedunmoved.com/052a31ec6630bf924a2d4f12044da94b/invoke.js',
+    path: '/ads/banner_468x60.html',
   },
   skyscraper_160x600: {
-    key: '43f0fbc3138f265c8264efe8a82643cd',
     width: 160,
     height: 600,
-    scriptUrl: 'https://dependedunmoved.com/43f0fbc3138f265c8264efe8a82643cd/invoke.js',
+    path: '/ads/skyscraper_160x600.html',
   },
   skyscraper_160x300: {
-    key: 'bc9210dc33aff03c55fe7cf3474ca050',
     width: 160,
     height: 300,
-    scriptUrl: 'https://dependedunmoved.com/bc9210dc33aff03c55fe7cf3474ca050/invoke.js',
+    path: '/ads/skyscraper_160x300.html',
   },
 };
 
 export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '' }) => {
-  const config = AD_CONFIGS[slot];
-
-  const htmlContent = useMemo(() => {
-    if (!config) return '';
-    return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: transparent;
-      overflow: hidden;
-    }
-  </style>
-</head>
-<body>
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '${config.key}',
-      'format' : 'iframe',
-      'height' : ${config.height},
-      'width' : ${config.width},
-      'params' : {}
-    };
-  </script>
-  <script type="text/javascript" src="${config.scriptUrl}"></script>
-</body>
-</html>`;
-  }, [config]);
+  const config = AD_DIMENSIONS[slot];
 
   if (!config) return null;
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div className={`flex items-center justify-center overflow-hidden ${className}`}>
       <iframe
         title={`adsterra-${slot}`}
-        srcDoc={htmlContent}
+        src={config.path}
         width={config.width}
         height={config.height}
         scrolling="no"
         frameBorder="0"
-        className="border-0 overflow-hidden"
+        className="border-0 overflow-hidden bg-transparent"
         style={{
           width: `${config.width}px`,
           height: `${config.height}px`,
           maxWidth: '100%',
           display: 'block'
         }}
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-top-navigation-by-user-activation"
       />
     </div>
   );
 };
+
 
