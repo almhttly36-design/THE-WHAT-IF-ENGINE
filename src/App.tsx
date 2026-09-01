@@ -49,7 +49,6 @@ import { DesktopSkyscraperAds } from './components/DesktopSkyscraperAds';
 import { StickyMobileAdBar } from './components/StickyMobileAdBar';
 import { PopunderNotificationModal } from './components/PopunderNotificationModal';
 import { TopAnnouncementBar } from './components/TopAnnouncementBar';
-import { FloatingAdNotification } from './components/FloatingAdNotification';
 import { InStreamInteractiveBanner } from './components/InStreamInteractiveBanner';
 import { recordActionAndGate } from './lib/popupManager';
 import { PRESET_SCENARIOS } from './data/presetScenarios';
@@ -861,7 +860,7 @@ export default function App() {
         </div>
 
         {/* Top Responsive Ad Placement (Leaderboard 728x90 on Desktop / Mobile 320x50) */}
-        <div className="w-full flex justify-center my-2">
+        <div className="w-full flex justify-center my-4">
           <div className="hidden sm:block">
             <AdBanner slot="leaderboard_728x90" />
           </div>
@@ -1438,7 +1437,6 @@ export default function App() {
       )}
       <Analytics />
       <SpeedInsights />
-      <FloatingAdNotification locale={locale} />
       <PopunderNotificationModal />
     </div>
   );

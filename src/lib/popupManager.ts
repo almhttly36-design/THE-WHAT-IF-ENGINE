@@ -1,4 +1,5 @@
 export const DIRECT_SPONSORED_LINK = 'https://dependedunmoved.com/gikv1vm6?key=4cf296d3f2796a22a56f5a192feb1fc6';
+export const DIRECT_LINK = DIRECT_SPONSORED_LINK;
 
 interface PopupFlowOptions {
   url?: string;

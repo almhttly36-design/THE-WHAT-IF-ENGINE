@@ -53,7 +53,7 @@ const AD_CONFIGS: Record<AdSlotType, { key: string; width: number; height: numbe
   },
 };
 
-export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '', showLabel = true }) => {
+export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '' }) => {
   const config = AD_CONFIGS[slot];
 
   const htmlContent = useMemo(() => {
@@ -63,9 +63,10 @@ export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '', showLa
 <head>
   <meta charset="utf-8">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -92,28 +93,24 @@ export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '', showLa
   if (!config) return null;
 
   return (
-    <div className={`flex flex-col items-center justify-center my-3 ${className}`}>
-      {showLabel && (
-        <span className="text-[10px] font-mono text-amber-500/80 uppercase tracking-widest mb-1 select-none flex items-center gap-1">
-          <span className="w-1 h-1 rounded-full bg-amber-400"></span>
-          إعلان اديسترا • ADSTERRA ADS
-        </span>
-      )}
-      <div 
-        className="rounded-xl overflow-hidden bg-zinc-950/60 border border-zinc-800/80 shadow-md flex items-center justify-center transition-all"
-        style={{ width: `${config.width}px`, height: `${config.height}px`, maxWidth: '100%' }}
-      >
-        <iframe
-          title={`ad-banner-${slot}`}
-          srcDoc={htmlContent}
-          width={config.width}
-          height={config.height}
-          scrolling="no"
-          frameBorder="0"
-          className="border-0 overflow-hidden w-full h-full"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-top-navigation-by-user-activation"
-        />
-      </div>
+    <div className={`flex items-center justify-center ${className}`}>
+      <iframe
+        title={`adsterra-${slot}`}
+        srcDoc={htmlContent}
+        width={config.width}
+        height={config.height}
+        scrolling="no"
+        frameBorder="0"
+        className="border-0 overflow-hidden"
+        style={{
+          width: `${config.width}px`,
+          height: `${config.height}px`,
+          maxWidth: '100%',
+          display: 'block'
+        }}
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-top-navigation-by-user-activation"
+      />
     </div>
   );
 };
+
