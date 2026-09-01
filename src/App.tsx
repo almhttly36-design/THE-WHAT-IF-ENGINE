@@ -47,6 +47,11 @@ import { NativeAdWidget } from './components/NativeAdWidget';
 import { SponsoredDirectLink } from './components/SponsoredDirectLink';
 import { DesktopSkyscraperAds } from './components/DesktopSkyscraperAds';
 import { StickyMobileAdBar } from './components/StickyMobileAdBar';
+import { PopunderNotificationModal } from './components/PopunderNotificationModal';
+import { TopAnnouncementBar } from './components/TopAnnouncementBar';
+import { FloatingAdNotification } from './components/FloatingAdNotification';
+import { InStreamInteractiveBanner } from './components/InStreamInteractiveBanner';
+import { recordActionAndGate } from './lib/popupManager';
 import { PRESET_SCENARIOS } from './data/presetScenarios';
 import { updatePageSEO } from './lib/seoHelper';
 import { 
@@ -273,21 +278,23 @@ export default function App() {
   };
 
   const handleSelectHistory = (item: HistoryItem) => {
-    setQuery(item.user_prompt);
-    setResult({
-      ...item.result,
-      source: 'local_cache',
+    recordActionAndGate(() => {
+      setQuery(item.user_prompt);
+      setResult({
+        ...item.result,
+        source: 'local_cache',
+      });
+      setErrorMessage(null);
+      setIsHistoryOpen(false);
+      addToast(
+        locale === 'ar' ? 'تم استرجاع السيناريو فورياً من قاعدة البيانات' : 'Scenario restored instantly from database',
+        'info',
+        locale === 'ar' ? 'قاعدة البيانات' : 'Database Record'
+      );
     });
-    setErrorMessage(null);
-    setIsHistoryOpen(false);
-    addToast(
-      locale === 'ar' ? 'تم استرجاع السيناريو فورياً من قاعدة البيانات' : 'Scenario restored instantly from database',
-      'info',
-      locale === 'ar' ? 'قاعدة البيانات' : 'Database Record'
-    );
   };
 
-  const handleAnalyze = async (overridePrompt?: string) => {
+  const executeSimulation = async (overridePrompt?: string) => {
     const promptToUse = overridePrompt || query;
     if (!promptToUse.trim() || isSimulating) return;
 
@@ -518,9 +525,20 @@ export default function App() {
     }
   };
 
+  const handleAnalyze = async (overridePrompt?: string) => {
+    const promptToUse = overridePrompt || query;
+    if (!promptToUse.trim() || isSimulating) return;
+
+    recordActionAndGate(() => {
+      executeSimulation(promptToUse);
+    });
+  };
+
   const handlePresetSelect = (preset: string) => {
     setQuery(preset);
-    handleAnalyze(preset);
+    recordActionAndGate(() => {
+      executeSimulation(preset);
+    });
   };
 
   const handlePickRandomQuestion = () => {
@@ -568,6 +586,9 @@ export default function App() {
           background: 'radial-gradient(circle at 50% 15%, rgba(6, 182, 212, 0.12) 0%, rgba(4, 6, 10, 0.98) 75%)'
         }}
       />
+
+      {/* Top Interactive Announcement Banner */}
+      <TopAnnouncementBar locale={locale} />
 
       {/* Top Header Navigation Bar */}
       <header className="relative z-20 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-xl px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
@@ -848,6 +869,9 @@ export default function App() {
             <AdBanner slot="mobile_320x50" />
           </div>
         </div>
+
+        {/* High-Visibility In-Stream Interactive Partner Banner */}
+        <InStreamInteractiveBanner variant="wide" locale={locale} />
 
         {/* Futuristic Loading State Animation */}
         {isSimulating && (
@@ -1197,6 +1221,9 @@ export default function App() {
             {/* Sponsored High-Converting Quantum Partner Banner */}
             <SponsoredDirectLink variant="banner" />
 
+            {/* In-Stream Secondary Compact Partner Ad */}
+            <InStreamInteractiveBanner variant="compact" locale={locale} />
+
             {/* Bottom Sponsored Content (Native Ad Widget) */}
             <NativeAdWidget />
 
@@ -1411,6 +1438,8 @@ export default function App() {
       )}
       <Analytics />
       <SpeedInsights />
+      <FloatingAdNotification locale={locale} />
+      <PopunderNotificationModal />
     </div>
   );
 }
