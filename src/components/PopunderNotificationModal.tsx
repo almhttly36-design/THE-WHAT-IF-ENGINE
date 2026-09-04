@@ -112,7 +112,7 @@ export const PopunderNotificationModal: React.FC = () => {
         <div className="flex items-center justify-between gap-3 mb-4 relative z-10">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-            <span>نافذة شريك معتمد</span>
+            <span>تنبيه: نافذة إعلانية منبثقة</span>
           </span>
 
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-zinc-800/80 border border-zinc-700 text-[11px] font-mono text-cyan-300 ml-8">
@@ -129,10 +129,10 @@ export const PopunderNotificationModal: React.FC = () => {
 
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-zinc-100 leading-snug">
-              عرض خاص من الشريك الإعلاني
+              أنت ذاهب إلى نافذة منبثقة إعلانية
             </h2>
             <p className="text-[11px] font-mono text-zinc-400 mt-0.5">
-              SPONSORED PARTNER WINDOW
+              SPONSORED POP-UP WINDOW NOTICE
             </p>
           </div>
         </div>
@@ -141,10 +141,10 @@ export const PopunderNotificationModal: React.FC = () => {
         <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 text-zinc-300 text-xs leading-relaxed space-y-1.5 mb-5 relative z-10">
           <p className="font-semibold text-cyan-300 flex items-center gap-1.5">
             <Zap className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-            <span>دعم المحرك ومواصلة المحاكاة المجانية</span>
+            <span>شفافية تامة لدعم استمرار الخدمة مجاناً</span>
           </p>
-          <p className="text-zinc-400 text-[11px]">
-            يسهم زيارة الشريك الإعلاني في تغطية تكاليف معالجات الكوانتوم والحفاظ على سرعة المحرك مجاناً للجميع.
+          <p className="text-zinc-400 text-[11px] leading-relaxed">
+            سيتم فتح علامة تبويب جديدة لعرض إعلان الشريك المعتمد. يساهم هذا الدعم في تشغيل خوادم الذكاء الاصطناعي والمحاكاة الكمومية مجاناً لجميع المستخدمين.
           </p>
         </div>
 
@@ -156,7 +156,7 @@ export const PopunderNotificationModal: React.FC = () => {
             className="w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-cyan-400 hover:from-amber-400 hover:to-cyan-300 text-zinc-950 font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_25px_rgba(245,158,11,0.3)] active:scale-[0.98]"
           >
             <Sparkles className="w-4 h-4 text-zinc-950" />
-            <span>متابعة إلى عرض الشريك</span>
+            <span>المتابعة وفتح النافذة المنبثقة</span>
             <ArrowRight className="w-4 h-4 text-zinc-950" />
           </button>
 
@@ -165,7 +165,7 @@ export const PopunderNotificationModal: React.FC = () => {
             onClick={handleClose}
             className="w-full py-2.5 px-4 rounded-xl bg-zinc-900/60 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-200 text-xs font-mono transition-colors"
           >
-            متابعة المحاكاة في التطبيق مباشرة
+            البقاء في التطبيق والمتابعة دون فتح النافذة
           </button>
         </div>
 

@@ -3,6 +3,8 @@ import { X, ChevronDown, ChevronUp } from 'lucide-react';
 import { AdBanner } from './AdBanner';
 
 export const StickyMobileAdBar: React.FC = () => {
+  return null; // Disabled while testing popunder exclusively
+  
   const [closed, setClosed] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 

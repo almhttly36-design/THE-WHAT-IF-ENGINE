@@ -48,6 +48,7 @@ import { SponsoredDirectLink } from './components/SponsoredDirectLink';
 import { DesktopSkyscraperAds } from './components/DesktopSkyscraperAds';
 import { StickyMobileAdBar } from './components/StickyMobileAdBar';
 import { PopunderNotificationModal } from './components/PopunderNotificationModal';
+import { SocialBarManager } from './components/SocialBarManager';
 import { TopAnnouncementBar } from './components/TopAnnouncementBar';
 import { InStreamInteractiveBanner } from './components/InStreamInteractiveBanner';
 import { recordActionAndGate } from './lib/popupManager';
@@ -680,7 +681,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-8 sm:py-12 flex flex-col items-center">
+      <main className="relative z-10 flex-1 max-w-5xl w-full mx-auto px-4 py-8 sm:py-12 pb-24 sm:pb-28 flex flex-col items-center">
         
         {/* Desktop Skyscraper Sticky Side Banners (160x600 & 160x300) */}
         <DesktopSkyscraperAds />
@@ -859,14 +860,9 @@ export default function App() {
           <SponsoredDirectLink variant="badge" />
         </div>
 
-        {/* Top Responsive Ad Placement (Leaderboard 728x90 on Desktop / Mobile 320x50) */}
+        {/* Prime 468x60 Banner Placement (Auto-responsive on all screens) */}
         <div className="w-full flex justify-center my-3">
-          <div className="hidden sm:block">
-            <AdBanner slot="leaderboard_728x90" />
-          </div>
-          <div className="block sm:hidden">
-            <AdBanner slot="mobile_320x50" />
-          </div>
+          <AdBanner slot="banner_468x60" />
         </div>
 
         {/* Futuristic Loading State Animation */}
@@ -1183,6 +1179,11 @@ export default function App() {
               </div>
             </div>
 
+            {/* Mid-Content High-Engagement 300x250 Medium Rectangle */}
+            <div className="w-full flex justify-center my-4">
+              <AdBanner slot="rectangle_300x250" />
+            </div>
+
             {/* Requirement 4: Futuristic Numbered Contingency Plan List */}
             <div className="p-6 sm:p-7 rounded-2xl bg-zinc-950/80 border border-zinc-800/80 backdrop-blur-2xl shadow-xl">
               <div className="flex items-center justify-between mb-4">
@@ -1217,14 +1218,9 @@ export default function App() {
             {/* Native Ad Placement */}
             <NativeAdWidget />
 
-            {/* Bottom Responsive Banner (468x60 / 320x50) */}
-            <div className="w-full flex justify-center mt-2 mb-4">
-              <div className="hidden sm:block">
-                <AdBanner slot="banner_468x60" />
-              </div>
-              <div className="block sm:hidden">
-                <AdBanner slot="mobile_320x50" />
-              </div>
+            {/* Bottom Strategic 468x60 Banner */}
+            <div className="w-full flex justify-center mt-3 mb-4">
+              <AdBanner slot="banner_468x60" />
             </div>
 
           </div>
@@ -1443,6 +1439,7 @@ export default function App() {
       <SpeedInsights />
       <DesktopSkyscraperAds />
       <PopunderNotificationModal />
+      <SocialBarManager />
     </div>
   );
 }

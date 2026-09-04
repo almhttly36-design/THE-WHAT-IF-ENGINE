@@ -1,4 +1,4 @@
-export const DIRECT_SPONSORED_LINK = 'https://www.highperformanceformat.com/taguzhpv?key=deb899aefad12dc321272866ed9660cb';
+export const DIRECT_SPONSORED_LINK = 'https://dependedunmoved.com/taguzhpv?key=deb899aefad12dc321272866ed9660cb';
 export const DIRECT_LINK = DIRECT_SPONSORED_LINK;
 
 interface PopupFlowOptions {
@@ -26,23 +26,35 @@ export function requestPopupFlow(options: PopupFlowOptions = {}) {
 let actionCounter = 0;
 
 /**
- * Smooth action handler that executes the user's action immediately,
- * keeping the simulation and UI completely responsive without blocking.
+ * Gatekeeper that informs the user professionally before sending them
+ * to the sponsored popunder/popup window, respecting user consent.
  */
-export function recordActionAndGate(onComplete: () => void, _forced: boolean = false) {
-  // Execute the user's intended action immediately so simulations never get stuck
-  onComplete();
-
+export function recordActionAndGate(onComplete: () => void, forced: boolean = false) {
   actionCounter += 1;
   const lastPopupTime = Number(sessionStorage.getItem('whatif_last_popup_time') || '0');
   const now = Date.now();
-  
-  // Only suggest a sponsored popunder opportunistically every 4 actions and at least 45 seconds apart
-  if (actionCounter % 4 === 0 && now - lastPopupTime > 45000) {
-    sessionStorage.setItem('whatif_last_popup_time', String(now));
+  const hasShown = sessionStorage.getItem('whatif_popunder_shown');
+
+  // Trigger professional notification on first interaction, or every 2 actions after 45 seconds
+  const shouldPrompt = forced || !hasShown || (actionCounter % 2 === 0 && now - lastPopupTime > 45000);
+
+  if (shouldPrompt) {
     requestPopupFlow({
       url: DIRECT_SPONSORED_LINK,
       mandatory: false,
+      onProceed: () => {
+        sessionStorage.setItem('whatif_popunder_shown', 'true');
+        sessionStorage.setItem('whatif_last_popup_time', String(Date.now()));
+        onComplete();
+      },
+      onCancel: () => {
+        sessionStorage.setItem('whatif_popunder_shown', 'true');
+        sessionStorage.setItem('whatif_last_popup_time', String(Date.now()));
+        onComplete();
+      },
     });
+  } else {
+    // Proceed directly with the simulation
+    onComplete();
   }
 }

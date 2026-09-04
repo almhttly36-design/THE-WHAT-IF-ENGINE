@@ -26,21 +26,7 @@
       'width' : 300,
       'params' : {}
     };
-    function loadScript(src, fallback) {
-      var s = document.createElement('script');
-      s.type = 'text/javascript';
-      s.src = src;
-      s.onerror = function() {
-        if (fallback) {
-          loadScript(fallback, null);
-        }
-      };
-      document.body.appendChild(s);
-    }
-    loadScript(
-      'https://www.highperformanceformat.com/6c97f9f681c8897b60d177725efce083/invoke.js',
-      'https://dependedunmoved.com/6c97f9f681c8897b60d177725efce083/invoke.js'
-    );
   </script>
+  <script type="text/javascript" src="//dependedunmoved.com/6c97f9f681c8897b60d177725efce083/invoke.js"></script>
 </body>
 </html>

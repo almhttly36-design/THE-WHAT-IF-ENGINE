@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export type AdSlotType = 
   | 'leaderboard_728x90' 
@@ -13,76 +13,117 @@ interface AdBannerProps {
   className?: string;
 }
 
-const SLOT_CONFIGS: Record<AdSlotType, { key: string; width: number; height: number }> = {
-  leaderboard_728x90: { key: '1a3b227a010318dbb7d14d98429feb19', width: 728, height: 90 },
-  mobile_320x50: { key: '2c8c62d0a93aa8b9c0e679da8233110e', width: 320, height: 50 },
-  banner_468x60: { key: '3277cebc283bc249d801a5f60b657736', width: 468, height: 60 },
-  rectangle_300x250: { key: '6c97f9f681c8897b60d177725efce083', width: 300, height: 250 },
-  skyscraper_160x600: { key: '000d815dba9b930fdb4a4fcd4581e4ca', width: 160, height: 600 },
-  skyscraper_160x300: { key: '000d815dba9b930fdb4a4fcd4581e4ca', width: 160, height: 300 },
+const SLOT_CONFIGS: Record<AdSlotType, { width: number; height: number; label: string }> = {
+  rectangle_300x250: { 
+    width: 300, 
+    height: 250, 
+    label: 'إعلان الشريك المعتمد • 300x250 Medium Rectangle' 
+  },
+  banner_468x60: { 
+    width: 468, 
+    height: 60, 
+    label: 'إعلان الشريك المعتمد • 468x60 Full Banner' 
+  },
+  leaderboard_728x90: { 
+    width: 728, 
+    height: 90, 
+    label: 'إعلان الشريك المعتمد • 728x90 Leaderboard' 
+  },
+  mobile_320x50: { 
+    width: 320, 
+    height: 50, 
+    label: 'إعلان الشريك المعتمد • 320x50 Mobile Banner' 
+  },
+  skyscraper_160x600: { 
+    width: 160, 
+    height: 600, 
+    label: 'إعلان الشريك المعتمد • 160x600 Skyscraper' 
+  },
+  skyscraper_160x300: { 
+    width: 160, 
+    height: 300, 
+    label: 'إعلان الشريك المعتمد • 160x300 Skyscraper' 
+  },
 };
 
-export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '' }) => {
-  const config = SLOT_CONFIGS[slot] || SLOT_CONFIGS['rectangle_300x250'];
+// Allowed active banner slots - now enabling 468x60 and 300x250 as requested!
+const ACTIVE_SLOTS = new Set<AdSlotType>(['banner_468x60', 'rectangle_300x250']);
 
-  // Professional srcDoc encapsulation:
-  // 1. Isolates atOptions in its own window to prevent conflicts between multiple slots.
-  // 2. Uses parser-synchronous script tags so Adsterra document.write works natively.
-  // 3. Has dark transparent styling matching the app theme.
-  // 4. Immune to browser frame crash screens (ERR_NAME_NOT_RESOLVED never renders on the frame itself).
-  const srcDocHtml = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: transparent;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-  </style>
-</head>
-<body>
-  <script type="text/javascript">
-    atOptions = {
-      'key' : '${config.key}',
-      'format' : 'iframe',
-      'height' : ${config.height},
-      'width' : ${config.width},
-      'params' : {}
+export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '' }) => {
+  // Only render slots that are explicitly active
+  if (!ACTIVE_SLOTS.has(slot)) {
+    return null;
+  }
+
+  const config = SLOT_CONFIGS[slot] || SLOT_CONFIGS['rectangle_300x250'];
+  const [scale, setScale] = useState<number>(1);
+
+  // Responsive scale down for screens narrower than the banner width
+  useEffect(() => {
+    const updateScale = () => {
+      if (typeof window === 'undefined') return;
+      const screenWidth = window.innerWidth - 32; // 16px padding on each side
+      if (screenWidth < config.width) {
+        const calculatedScale = Math.max(0.65, screenWidth / config.width);
+        setScale(calculatedScale);
+      } else {
+        setScale(1);
+      }
     };
-  </script>
-  <script type="text/javascript" src="https://www.highperformanceformat.com/${config.key}/invoke.js" onerror="this.onerror=null;this.src='https://dependedunmoved.com/${config.key}/invoke.js';"></script>
-</body>
-</html>`;
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, [config.width]);
 
   return (
     <div 
-      className={`relative flex items-center justify-center overflow-hidden max-w-full my-2 transition-all ${className}`}
-      style={{ minHeight: `${config.height}px` }}
+      className={`relative w-full flex flex-col items-center justify-center my-4 select-none ${className}`}
+      dir="rtl"
     >
-      <iframe
-        srcDoc={srcDocHtml}
-        width={config.width}
-        height={config.height}
+      {/* Sleek Cybernetic Tag */}
+      <div className="flex items-center justify-center gap-1.5 mb-2 opacity-75 hover:opacity-100 transition-opacity">
+        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400/80 animate-pulse" />
+        <span className="text-[10px] font-mono tracking-wider text-zinc-400 uppercase">
+          {config.label}
+        </span>
+      </div>
+
+      {/* Cyber Frame with zero layout shift */}
+      <div 
+        className="relative flex items-center justify-center rounded-2xl bg-zinc-950/70 border border-zinc-800/80 p-2 shadow-[0_4px_25px_rgba(0,0,0,0.5)] overflow-hidden transition-all duration-300 hover:border-cyan-500/40"
         style={{
-          border: 'none',
-          overflow: 'hidden',
-          background: 'transparent',
-          maxWidth: '100%',
-          display: 'block'
+          width: scale < 1 ? '100%' : `${config.width + 16}px`,
+          height: `${Math.round(config.height * scale) + 16}px`,
+          minHeight: `${Math.round(config.height * scale) + 16}px`,
         }}
-        title={`Adsterra Ad ${slot}`}
-        scrolling="no"
-        loading="lazy"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
-      />
+      >
+        <div 
+          className="flex items-center justify-center origin-center transition-transform duration-200"
+          style={{
+            width: `${config.width}px`,
+            height: `${config.height}px`,
+            transform: scale < 1 ? `scale(${scale})` : 'none',
+          }}
+        >
+          <iframe
+            src={`/ads/${slot}.html`}
+            width={config.width}
+            height={config.height}
+            style={{
+              border: 'none',
+              overflow: 'hidden',
+              background: 'transparent',
+              display: 'block',
+              width: `${config.width}px`,
+              height: `${config.height}px`,
+            }}
+            title={`Adsterra Ad ${slot}`}
+            scrolling="no"
+            loading="eager"
+          />
+        </div>
+      </div>
     </div>
   );
 };
