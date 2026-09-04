@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ad</title>
+  <title>Sponsored</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
@@ -26,7 +26,21 @@
       'width' : 728,
       'params' : {}
     };
+    function loadScript(src, fallback) {
+      var s = document.createElement('script');
+      s.type = 'text/javascript';
+      s.src = src;
+      s.onerror = function() {
+        if (fallback) {
+          loadScript(fallback, null);
+        }
+      };
+      document.body.appendChild(s);
+    }
+    loadScript(
+      'https://www.highperformanceformat.com/1a3b227a010318dbb7d14d98429feb19/invoke.js',
+      'https://dependedunmoved.com/1a3b227a010318dbb7d14d98429feb19/invoke.js'
+    );
   </script>
-  <script type="text/javascript" src="https://dependedunmoved.com/1a3b227a010318dbb7d14d98429feb19/invoke.js"></script>
 </body>
 </html>

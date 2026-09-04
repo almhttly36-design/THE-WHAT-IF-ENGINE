@@ -1,4 +1,4 @@
-export const DIRECT_SPONSORED_LINK = 'https://dependedunmoved.com/taguzhpv?key=deb899aefad12dc321272866ed9660cb';
+export const DIRECT_SPONSORED_LINK = 'https://www.highperformanceformat.com/taguzhpv?key=deb899aefad12dc321272866ed9660cb';
 export const DIRECT_LINK = DIRECT_SPONSORED_LINK;
 
 interface PopupFlowOptions {

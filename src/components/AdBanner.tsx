@@ -1,4 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { DIRECT_LINK } from '../lib/popupManager';
+import { ExternalLink, Sparkles } from 'lucide-react';
 
 export type AdSlotType = 
   | 'leaderboard_728x90' 
@@ -24,11 +26,22 @@ const SLOT_CONFIGS: Record<AdSlotType, { key: string; width: number; height: num
 
 export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '' }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [isBlocked, setIsBlocked] = useState(false);
   const config = SLOT_CONFIGS[slot] || SLOT_CONFIGS['rectangle_300x250'];
 
   useEffect(() => {
     const iframe = iframeRef.current;
     if (!iframe) return;
+
+    let isMounted = true;
+
+    // Listen for ad block / script failure notification from inside the frame
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'AD_BLOCKED' && event.data.slot === slot) {
+        if (isMounted) setIsBlocked(true);
+      }
+    };
+    window.addEventListener('message', handleMessage);
 
     try {
       const doc = iframe.contentDocument || iframe.contentWindow?.document;
@@ -55,23 +68,73 @@ export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '' }) => {
         </head>
         <body>
           <script type="text/javascript">
-            atOptions = {
+            window.atOptions = {
               'key' : '${config.key}',
               'format' : 'iframe',
               'height' : ${config.height},
               'width' : ${config.width},
               'params' : {}
             };
+
+            function tryLoadScript(src, fallback) {
+              var s = document.createElement('script');
+              s.type = 'text/javascript';
+              s.src = src;
+              s.async = true;
+              s.onerror = function() {
+                if (fallback) {
+                  tryLoadScript(fallback, null);
+                } else {
+                  window.parent.postMessage({ type: 'AD_BLOCKED', slot: '${slot}' }, '*');
+                }
+              };
+              document.body.appendChild(s);
+            }
+
+            tryLoadScript(
+              'https://www.highperformanceformat.com/${config.key}/invoke.js',
+              'https://dependedunmoved.com/${config.key}/invoke.js'
+            );
           </script>
-          <script type="text/javascript" src="https://dependedunmoved.com/${config.key}/invoke.js"></script>
         </body>
         </html>
       `);
       doc.close();
     } catch (e) {
-      console.warn('Adsterra frame write error:', e);
+      if (isMounted) setIsBlocked(true);
     }
-  }, [config.key, config.width, config.height]);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('message', handleMessage);
+    };
+  }, [config.key, config.width, config.height, slot]);
+
+  // If network or DNS blocks the third-party script, show an elegant direct partner banner instead of a broken grey box
+  if (isBlocked) {
+    return (
+      <div className={`flex items-center justify-center overflow-hidden my-2 ${className}`}>
+        <a
+          href={DIRECT_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ width: `${config.width}px`, height: `${Math.min(config.height, 90)}px` }}
+          className="max-w-full px-3 py-2 rounded-xl bg-gradient-to-r from-zinc-900 via-zinc-950 to-zinc-900 border border-zinc-800/80 hover:border-cyan-500/50 flex items-center justify-between gap-3 text-zinc-300 transition-all shadow-lg group select-none"
+        >
+          <div className="flex items-center gap-2 overflow-hidden">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
+            <span className="text-[11px] font-mono text-zinc-400 truncate">
+              {slot.includes('mobile') ? '🔥 عروض برعاية الشريك' : '⚡ شريك رسمي معتمد • SPECIAL PROMOTIONS'}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 text-[11px] font-bold text-cyan-400 group-hover:text-cyan-300 shrink-0 font-mono">
+            <span>زيارة</span>
+            <ExternalLink className="w-3 h-3" />
+          </div>
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex items-center justify-center overflow-hidden ${className}`}>

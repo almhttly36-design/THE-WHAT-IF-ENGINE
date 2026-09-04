@@ -860,7 +860,7 @@ export default function App() {
         </div>
 
         {/* Top Responsive Ad Placement (Leaderboard 728x90 on Desktop / Mobile 320x50) */}
-        <div className="w-full flex justify-center my-4">
+        <div className="w-full flex justify-center my-3">
           <div className="hidden sm:block">
             <AdBanner slot="leaderboard_728x90" />
           </div>
@@ -868,9 +868,6 @@ export default function App() {
             <AdBanner slot="mobile_320x50" />
           </div>
         </div>
-
-        {/* High-Visibility In-Stream Interactive Partner Banner */}
-        <InStreamInteractiveBanner variant="wide" locale={locale} />
 
         {/* Futuristic Loading State Animation */}
         {isSimulating && (
@@ -1217,13 +1214,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Sponsored High-Converting Quantum Partner Banner */}
-            <SponsoredDirectLink variant="banner" />
-
-            {/* In-Stream Secondary Compact Partner Ad */}
-            <InStreamInteractiveBanner variant="compact" locale={locale} />
-
-            {/* Bottom Sponsored Content (Native Ad Widget) */}
+            {/* Native Ad Placement */}
             <NativeAdWidget />
 
             {/* Bottom Responsive Banner (468x60 / 320x50) */}
@@ -1242,9 +1233,6 @@ export default function App() {
         {/* Home View Featured Partner & Native Ad Slot when not simulating and no active result */}
         {!result && !isSimulating && (
           <div className="w-full max-w-4xl my-6 flex flex-col gap-6 animate-in fade-in duration-500">
-            {/* Sponsored Quantum Partner Banner */}
-            <SponsoredDirectLink variant="banner" />
-
             {/* Native Ad Placement */}
             <NativeAdWidget />
 
