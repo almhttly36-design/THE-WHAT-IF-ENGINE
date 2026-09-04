@@ -896,6 +896,7 @@ export default function App() {
                       <span>{dict.dashboard.summary_label}</span>
                     </div>
                     <div className="flex items-center gap-2">
+                      <SponsoredDirectLink variant="button" />
                       <button
                         onClick={() => setIsShareModalOpen(true)}
                         className="px-3 py-1 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
@@ -1215,6 +1216,9 @@ export default function App() {
               </div>
             </div>
 
+            {/* Direct Smart Link Cybernetic Showcase Card */}
+            <SponsoredDirectLink variant="card" />
+
             {/* Native Ad Placement */}
             <NativeAdWidget />
 
@@ -1229,6 +1233,9 @@ export default function App() {
         {/* Home View Featured Partner & Native Ad Slot when not simulating and no active result */}
         {!result && !isSimulating && (
           <div className="w-full max-w-4xl my-6 flex flex-col gap-6 animate-in fade-in duration-500">
+            {/* Direct Smart Link Cybernetic Showcase Card */}
+            <SponsoredDirectLink variant="card" />
+
             {/* Native Ad Placement */}
             <NativeAdWidget />
 
