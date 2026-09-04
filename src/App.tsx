@@ -44,14 +44,11 @@ import { ScenarioExplorer } from './components/ScenarioExplorer';
 import { ShareModal } from './components/ShareModal';
 import { AdBanner } from './components/AdBanner';
 import { NativeAdWidget } from './components/NativeAdWidget';
-import { SponsoredDirectLink } from './components/SponsoredDirectLink';
 import { DesktopSkyscraperAds } from './components/DesktopSkyscraperAds';
 import { StickyMobileAdBar } from './components/StickyMobileAdBar';
-import { PopunderNotificationModal } from './components/PopunderNotificationModal';
 import { SocialBarManager } from './components/SocialBarManager';
 import { TopAnnouncementBar } from './components/TopAnnouncementBar';
 import { InStreamInteractiveBanner } from './components/InStreamInteractiveBanner';
-import { recordActionAndGate } from './lib/popupManager';
 import { PRESET_SCENARIOS } from './data/presetScenarios';
 import { updatePageSEO } from './lib/seoHelper';
 import { 
@@ -278,20 +275,18 @@ export default function App() {
   };
 
   const handleSelectHistory = (item: HistoryItem) => {
-    recordActionAndGate(() => {
-      setQuery(item.user_prompt);
-      setResult({
-        ...item.result,
-        source: 'local_cache',
-      });
-      setErrorMessage(null);
-      setIsHistoryOpen(false);
-      addToast(
-        locale === 'ar' ? 'تم استرجاع السيناريو فورياً من قاعدة البيانات' : 'Scenario restored instantly from database',
-        'info',
-        locale === 'ar' ? 'قاعدة البيانات' : 'Database Record'
-      );
+    setQuery(item.user_prompt);
+    setResult({
+      ...item.result,
+      source: 'local_cache',
     });
+    setErrorMessage(null);
+    setIsHistoryOpen(false);
+    addToast(
+      locale === 'ar' ? 'تم استرجاع السيناريو فورياً من قاعدة البيانات' : 'Scenario restored instantly from database',
+      'info',
+      locale === 'ar' ? 'قاعدة البيانات' : 'Database Record'
+    );
   };
 
   const executeSimulation = async (overridePrompt?: string) => {
@@ -529,16 +524,12 @@ export default function App() {
     const promptToUse = overridePrompt || query;
     if (!promptToUse.trim() || isSimulating) return;
 
-    recordActionAndGate(() => {
-      executeSimulation(promptToUse);
-    });
+    executeSimulation(promptToUse);
   };
 
   const handlePresetSelect = (preset: string) => {
     setQuery(preset);
-    recordActionAndGate(() => {
-      executeSimulation(preset);
-    });
+    executeSimulation(preset);
   };
 
   const handlePickRandomQuestion = () => {
@@ -857,7 +848,6 @@ export default function App() {
             <History className="w-3.5 h-3.5 text-emerald-400" />
             <span>{dict.home.badges.historical}</span>
           </div>
-          <SponsoredDirectLink variant="badge" />
         </div>
 
         {/* Prime 468x60 Banner Placement (Auto-responsive on all screens) */}
@@ -896,7 +886,6 @@ export default function App() {
                       <span>{dict.dashboard.summary_label}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <SponsoredDirectLink variant="button" />
                       <button
                         onClick={() => setIsShareModalOpen(true)}
                         className="px-3 py-1 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-xs font-mono flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
@@ -1216,9 +1205,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Direct Smart Link Cybernetic Showcase Card */}
-            <SponsoredDirectLink variant="card" />
-
             {/* Native Ad Placement */}
             <NativeAdWidget />
 
@@ -1233,9 +1219,6 @@ export default function App() {
         {/* Home View Featured Partner & Native Ad Slot when not simulating and no active result */}
         {!result && !isSimulating && (
           <div className="w-full max-w-4xl my-6 flex flex-col gap-6 animate-in fade-in duration-500">
-            {/* Direct Smart Link Cybernetic Showcase Card */}
-            <SponsoredDirectLink variant="card" />
-
             {/* Native Ad Placement */}
             <NativeAdWidget />
 
@@ -1445,7 +1428,6 @@ export default function App() {
       <Analytics />
       <SpeedInsights />
       <DesktopSkyscraperAds />
-      <PopunderNotificationModal />
       <SocialBarManager />
     </div>
   );
