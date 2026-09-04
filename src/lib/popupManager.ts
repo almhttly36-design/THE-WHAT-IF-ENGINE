@@ -1,3 +1,4 @@
+export const ADSTERRA_WEBSITE_ID = '6027819';
 export const DIRECT_SPONSORED_LINK = 'https://dependedunmoved.com/taguzhpv?key=deb899aefad12dc321272866ed9660cb';
 export const DIRECT_LINK = DIRECT_SPONSORED_LINK;
 

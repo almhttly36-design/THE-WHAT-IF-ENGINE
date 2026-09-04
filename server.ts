@@ -723,6 +723,9 @@ Sitemap: ${baseUrl}/sitemap-en.xml
 });
 
 async function startServer() {
+  // Always serve static assets from /public first (ads.txt, robots.txt, sitemaps, etc.)
+  app.use(express.static(path.join(process.cwd(), 'public')));
+
   if (process.env.NODE_ENV !== 'production') {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({

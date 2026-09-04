@@ -1,0 +1,8 @@
+# ==============================================================================
+# Adsterra Publisher Verification & ads.txt
+# Website ID: 6027819
+# Domain: whatifsearch.vercel.app
+# ==============================================================================
+# If Adsterra provided you with a specific ads.txt line (e.g. google.com, pub-xxx or adsterra.com, xxx, DIRECT),
+# it will be matched below.
+adsterra.com, 6027819, DIRECT
