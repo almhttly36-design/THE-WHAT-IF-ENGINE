@@ -1,6 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { DIRECT_LINK } from '../lib/popupManager';
-import { ExternalLink, Sparkles } from 'lucide-react';
+import React from 'react';
 
 export type AdSlotType = 
   | 'leaderboard_728x90' 
@@ -25,126 +23,65 @@ const SLOT_CONFIGS: Record<AdSlotType, { key: string; width: number; height: num
 };
 
 export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '' }) => {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [isBlocked, setIsBlocked] = useState(false);
   const config = SLOT_CONFIGS[slot] || SLOT_CONFIGS['rectangle_300x250'];
 
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    let isMounted = true;
-
-    // Listen for ad block / script failure notification from inside the frame
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type === 'AD_BLOCKED' && event.data.slot === slot) {
-        if (isMounted) setIsBlocked(true);
-      }
-    };
-    window.addEventListener('message', handleMessage);
-
-    try {
-      const doc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!doc) return;
-
-      doc.open();
-      doc.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            html, body {
-              width: 100%;
-              height: 100%;
-              background: transparent;
-              overflow: hidden;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-            }
-          </style>
-        </head>
-        <body>
-          <script type="text/javascript">
-            window.atOptions = {
-              'key' : '${config.key}',
-              'format' : 'iframe',
-              'height' : ${config.height},
-              'width' : ${config.width},
-              'params' : {}
-            };
-
-            function tryLoadScript(src, fallback) {
-              var s = document.createElement('script');
-              s.type = 'text/javascript';
-              s.src = src;
-              s.async = true;
-              s.onerror = function() {
-                if (fallback) {
-                  tryLoadScript(fallback, null);
-                } else {
-                  window.parent.postMessage({ type: 'AD_BLOCKED', slot: '${slot}' }, '*');
-                }
-              };
-              document.body.appendChild(s);
-            }
-
-            tryLoadScript(
-              'https://www.highperformanceformat.com/${config.key}/invoke.js',
-              'https://dependedunmoved.com/${config.key}/invoke.js'
-            );
-          </script>
-        </body>
-        </html>
-      `);
-      doc.close();
-    } catch (e) {
-      if (isMounted) setIsBlocked(true);
+  // Professional srcDoc encapsulation:
+  // 1. Isolates atOptions in its own window to prevent conflicts between multiple slots.
+  // 2. Uses parser-synchronous script tags so Adsterra document.write works natively.
+  // 3. Has dark transparent styling matching the app theme.
+  // 4. Immune to browser frame crash screens (ERR_NAME_NOT_RESOLVED never renders on the frame itself).
+  const srcDocHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-
-    return () => {
-      isMounted = false;
-      window.removeEventListener('message', handleMessage);
+  </style>
+</head>
+<body>
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '${config.key}',
+      'format' : 'iframe',
+      'height' : ${config.height},
+      'width' : ${config.width},
+      'params' : {}
     };
-  }, [config.key, config.width, config.height, slot]);
-
-  // If network or DNS blocks the third-party script, show an elegant direct partner banner instead of a broken grey box
-  if (isBlocked) {
-    return (
-      <div className={`flex items-center justify-center overflow-hidden my-2 ${className}`}>
-        <a
-          href={DIRECT_LINK}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ width: `${config.width}px`, height: `${Math.min(config.height, 90)}px` }}
-          className="max-w-full px-3 py-2 rounded-xl bg-gradient-to-r from-zinc-900 via-zinc-950 to-zinc-900 border border-zinc-800/80 hover:border-cyan-500/50 flex items-center justify-between gap-3 text-zinc-300 transition-all shadow-lg group select-none"
-        >
-          <div className="flex items-center gap-2 overflow-hidden">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shrink-0" />
-            <span className="text-[11px] font-mono text-zinc-400 truncate">
-              {slot.includes('mobile') ? '🔥 عروض برعاية الشريك' : '⚡ شريك رسمي معتمد • SPECIAL PROMOTIONS'}
-            </span>
-          </div>
-          <div className="flex items-center gap-1 text-[11px] font-bold text-cyan-400 group-hover:text-cyan-300 shrink-0 font-mono">
-            <span>زيارة</span>
-            <ExternalLink className="w-3 h-3" />
-          </div>
-        </a>
-      </div>
-    );
-  }
+  </script>
+  <script type="text/javascript" src="https://www.highperformanceformat.com/${config.key}/invoke.js" onerror="this.onerror=null;this.src='https://dependedunmoved.com/${config.key}/invoke.js';"></script>
+</body>
+</html>`;
 
   return (
-    <div className={`flex items-center justify-center overflow-hidden ${className}`}>
+    <div 
+      className={`relative flex items-center justify-center overflow-hidden max-w-full my-2 transition-all ${className}`}
+      style={{ minHeight: `${config.height}px` }}
+    >
       <iframe
-        ref={iframeRef}
+        srcDoc={srcDocHtml}
         width={config.width}
         height={config.height}
-        style={{ border: 'none', overflow: 'hidden', background: 'transparent' }}
-        title={`Adsterra ${slot}`}
-        className="max-w-full"
+        style={{
+          border: 'none',
+          overflow: 'hidden',
+          background: 'transparent',
+          maxWidth: '100%',
+          display: 'block'
+        }}
+        title={`Adsterra Ad ${slot}`}
+        scrolling="no"
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
       />
     </div>
   );
