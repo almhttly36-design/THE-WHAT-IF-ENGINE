@@ -3,124 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sponsored</title>
+  <title>Ad</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #04060A;
-      color: #e4e4e7;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: transparent;
       overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-    #ad-container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-    #fallback-card {
-      display: none;
-      width: 100%;
-      height: 100%;
-      text-decoration: none;
-      background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%);
-      border: 1px solid rgba(6, 182, 212, 0.35);
-      border-radius: 10px;
-      padding: 6px 12px;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-    }
-    .badge {
-      background: #06b6d4;
-      color: #04060a;
-      font-size: 9px;
-      font-weight: 900;
-      padding: 2px 5px;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
-    .title {
-      font-size: 11px;
-      font-weight: 700;
-      color: #ffffff;
-      margin-left: 8px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 220px;
-    }
-    .cta-btn {
-      background: linear-gradient(90deg, #06b6d4, #3b82f6);
-      color: #ffffff;
-      font-size: 10px;
-      font-weight: 800;
-      padding: 5px 10px;
-      border-radius: 6px;
-      white-space: nowrap;
     }
   </style>
 </head>
 <body>
-  <div id="ad-container">
-    <div id="adsterra-slot">
-      <script type="text/javascript">
-        atOptions = {
-          'key' : '052a31ec6630bf924a2d4f12044da94b',
-          'format' : 'iframe',
-          'height' : 60,
-          'width' : 468,
-          'params' : {}
-        };
-      </script>
-      <script id="adsterra-script" type="text/javascript" src="//dependedunmoved.com/052a31ec6630bf924a2d4f12044da94b/invoke.js"></script>
-    </div>
-
-    <!-- Smart Fallback Card -->
-    <a id="fallback-card" href="https://dependedunmoved.com/gikv1vm6?key=4cf296d3f2796a22a56f5a192feb1fc6" target="_top" rel="noopener noreferrer">
-      <div style="display: flex; align-items: center;">
-        <span class="badge">PROMO</span>
-        <span class="title">Explore Trending Quantum Partner Offers</span>
-      </div>
-      <div class="cta-btn">CLAIM NOW ➔</div>
-    </a>
-  </div>
-
-  <script>
-    const fallback = document.getElementById('fallback-card');
-    const adSlot = document.getElementById('adsterra-slot');
-
-    function showFallback() {
-      if (adSlot) adSlot.style.display = 'none';
-      if (fallback) fallback.style.display = 'flex';
-    }
-
-    const script = document.getElementById('adsterra-script');
-    if (script) {
-      script.onerror = showFallback;
-    }
-
-    setTimeout(() => {
-      const iframes = adSlot ? adSlot.querySelectorAll('iframe') : [];
-      let hasAd = false;
-      if (iframes.length > 0) {
-        try {
-          if (iframes[0].offsetHeight > 20) {
-            hasAd = true;
-          }
-        } catch(e) {}
-      }
-      if (!hasAd && (!iframes.length || iframes[0].offsetHeight === 0)) {
-        showFallback();
-      }
-    }, 1800);
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '3277cebc283bc249d801a5f60b657736',
+      'format' : 'iframe',
+      'height' : 60,
+      'width' : 468,
+      'params' : {}
+    };
   </script>
+  <script type="text/javascript" src="https://dependedunmoved.com/3277cebc283bc249d801a5f60b657736/invoke.js"></script>
 </body>
 </html>

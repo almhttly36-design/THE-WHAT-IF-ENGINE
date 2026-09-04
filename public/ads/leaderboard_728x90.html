@@ -3,133 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sponsored</title>
+  <title>Ad</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #04060A;
-      color: #e4e4e7;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: transparent;
       overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-    }
-    #ad-container {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-    #fallback-card {
-      display: none;
-      width: 100%;
-      height: 100%;
-      text-decoration: none;
-      background: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%);
-      border: 1px solid rgba(6, 182, 212, 0.35);
-      border-radius: 12px;
-      padding: 8px 16px;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-    .badge {
-      background: #06b6d4;
-      color: #04060a;
-      font-size: 10px;
-      font-weight: 900;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .title {
-      font-size: 13px;
-      font-weight: 800;
-      color: #ffffff;
-      margin-left: 10px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 380px;
-    }
-    .cta-btn {
-      background: linear-gradient(90deg, #06b6d4, #3b82f6);
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 6px 14px;
-      border-radius: 8px;
-      white-space: nowrap;
-      box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
-      display: flex;
-      align-items: center;
-      gap: 4px;
     }
   </style>
 </head>
 <body>
-  <div id="ad-container">
-    <div id="adsterra-slot">
-      <script type="text/javascript">
-        atOptions = {
-          'key' : 'e23c2a80ff8e551297d1f4a5762287d5',
-          'format' : 'iframe',
-          'height' : 90,
-          'width' : 728,
-          'params' : {}
-        };
-      </script>
-      <script id="adsterra-script" type="text/javascript" src="//dependedunmoved.com/e23c2a80ff8e551297d1f4a5762287d5/invoke.js"></script>
-    </div>
-
-    <!-- Smart Fallback Card linking to Direct Link if Adsterra script is blocked -->
-    <a id="fallback-card" href="https://dependedunmoved.com/gikv1vm6?key=4cf296d3f2796a22a56f5a192feb1fc6" target="_top" rel="noopener noreferrer">
-      <div style="display: flex; align-items: center;">
-        <span class="badge">🔥 SPONSORED</span>
-        <span class="title">Exclusive Web Deals & Cyber Quantum Deals 2026</span>
-      </div>
-      <div class="cta-btn">EXPLORE DEAL ➔</div>
-    </a>
-  </div>
-
-  <script>
-    const directLink = 'https://dependedunmoved.com/gikv1vm6?key=4cf296d3f2796a22a56f5a192feb1fc6';
-    const fallback = document.getElementById('fallback-card');
-    const adSlot = document.getElementById('adsterra-slot');
-
-    function showFallback() {
-      if (adSlot) adSlot.style.display = 'none';
-      if (fallback) fallback.style.display = 'flex';
-    }
-
-    const script = document.getElementById('adsterra-script');
-    if (script) {
-      script.onerror = showFallback;
-    }
-
-    // If ad fails or is blocked after 1.8s, smoothly switch to direct link card
-    setTimeout(() => {
-      const iframes = adSlot ? adSlot.querySelectorAll('iframe') : [];
-      let hasAd = false;
-      if (iframes.length > 0) {
-        try {
-          // Check if iframe has content
-          if (iframes[0].offsetHeight > 20) {
-            hasAd = true;
-          }
-        } catch(e) {}
-      }
-      if (!hasAd && (!iframes.length || iframes[0].offsetHeight === 0)) {
-        showFallback();
-      }
-    }, 1800);
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '1a3b227a010318dbb7d14d98429feb19',
+      'format' : 'iframe',
+      'height' : 90,
+      'width' : 728,
+      'params' : {}
+    };
   </script>
+  <script type="text/javascript" src="https://dependedunmoved.com/1a3b227a010318dbb7d14d98429feb19/invoke.js"></script>
 </body>
 </html>
