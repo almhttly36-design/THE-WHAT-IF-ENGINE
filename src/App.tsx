@@ -1239,6 +1239,22 @@ export default function App() {
           </div>
         )}
 
+        {/* Home View Featured Partner & Native Ad Slot when not simulating and no active result */}
+        {!result && !isSimulating && (
+          <div className="w-full max-w-4xl my-6 flex flex-col gap-6 animate-in fade-in duration-500">
+            {/* Sponsored Quantum Partner Banner */}
+            <SponsoredDirectLink variant="banner" />
+
+            {/* Native Ad Placement */}
+            <NativeAdWidget />
+
+            {/* In-Content Medium Rectangle Ad (300x250) */}
+            <div className="w-full flex justify-center my-2">
+              <AdBanner slot="rectangle_300x250" />
+            </div>
+          </div>
+        )}
+
       </main>
 
       {/* Sticky Mobile Floating Ad Bar (320x50) */}
@@ -1437,6 +1453,7 @@ export default function App() {
       )}
       <Analytics />
       <SpeedInsights />
+      <DesktopSkyscraperAds />
       <PopunderNotificationModal />
     </div>
   );

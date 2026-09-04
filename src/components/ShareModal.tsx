@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Locale } from '../config/i18n.config';
 import { SimulationResult } from '../types';
+import { AdBanner } from './AdBanner';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -156,6 +157,11 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             <Linkedin className="w-4 h-4 text-blue-400" />
             <span>لينكد إن</span>
           </button>
+        </div>
+
+        {/* In-Modal Sponsored Ad */}
+        <div className="flex justify-center my-1">
+          <AdBanner slot="mobile_320x50" />
         </div>
 
         {/* Google SEO Badge Footer */}

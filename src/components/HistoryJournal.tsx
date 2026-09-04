@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { HistoryItem } from '../types';
 import { Locale } from '../config/i18n.config';
+import { AdBanner } from './AdBanner';
 
 interface HistoryJournalProps {
   isOpen: boolean;
@@ -195,6 +196,11 @@ export const HistoryJournal: React.FC<HistoryJournalProps> = ({
               );
             })
           )}
+        </div>
+
+        {/* In-Drawer Sponsored Ad */}
+        <div className="p-3 bg-zinc-950/80 border-t border-zinc-800/60 flex justify-center">
+          <AdBanner slot="mobile_320x50" />
         </div>
 
         {/* Drawer Footer Status */}

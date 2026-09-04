@@ -1,34 +1,26 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 
 interface NativeAdWidgetProps {
   className?: string;
 }
 
 export const NativeAdWidget: React.FC<NativeAdWidgetProps> = ({ className = '' }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    // Inject the native ad invoke script safely
-    const scriptId = 'adsterra-native-script-702888855';
+    const scriptId = 'adsterra-native-script-19b87bfeeae538453bcb10d826a885a3';
 
     if (!document.getElementById(scriptId)) {
       const script = document.createElement('script');
       script.id = scriptId;
       script.async = true;
       script.setAttribute('data-cfasync', 'false');
-      script.src = 'https://dependedunmoved.com/702888855c4ce6353a2065307af566fc/invoke.js';
+      script.src = 'https://dependedunmoved.com/19b87bfeeae538453bcb10d826a885a3/invoke.js';
       document.body.appendChild(script);
     }
   }, []);
 
   return (
-    <div className={`w-full max-w-4xl mx-auto my-4 flex justify-center items-center ${className}`}>
-      <div 
-        id="container-702888855c4ce6353a2065307af566fc" 
-        ref={containerRef}
-        className="w-full min-h-[60px] flex justify-center items-center overflow-hidden"
-      />
+    <div className={`w-full max-w-4xl mx-auto my-5 ${className}`}>
+      <div id="container-19b87bfeeae538453bcb10d826a885a3" className="w-full min-h-[100px] overflow-hidden" />
     </div>
   );
 };
-

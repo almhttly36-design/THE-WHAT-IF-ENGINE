@@ -17,6 +17,7 @@ import {
   SCENARIO_CATEGORIES, 
   ScenarioQuestion 
 } from '../data/presetScenarios';
+import { AdBanner } from './AdBanner';
 
 interface ScenarioExplorerProps {
   isOpen: boolean;
@@ -149,6 +150,16 @@ export const ScenarioExplorer: React.FC<ScenarioExplorerProps> = ({
                 </button>
               );
             })}
+          </div>
+        </div>
+
+        {/* In-Modal Sponsored Ad */}
+        <div className="px-4 sm:px-6 pt-3 flex justify-center">
+          <div className="hidden sm:block">
+            <AdBanner slot="banner_468x60" />
+          </div>
+          <div className="block sm:hidden">
+            <AdBanner slot="mobile_320x50" />
           </div>
         </div>
 

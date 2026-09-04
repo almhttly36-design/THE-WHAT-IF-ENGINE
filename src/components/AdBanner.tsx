@@ -11,66 +11,52 @@ export type AdSlotType =
 interface AdBannerProps {
   slot: AdSlotType;
   className?: string;
-  showLabel?: boolean;
 }
 
-const AD_DIMENSIONS: Record<AdSlotType, { width: number; height: number; path: string }> = {
-  leaderboard_728x90: {
-    width: 728,
-    height: 90,
-    path: '/ads/leaderboard_728x90.html',
-  },
-  mobile_320x50: {
-    width: 320,
-    height: 50,
-    path: '/ads/mobile_320x50.html',
-  },
-  rectangle_300x250: {
-    width: 300,
-    height: 250,
-    path: '/ads/rectangle_300x250.html',
-  },
-  banner_468x60: {
-    width: 468,
-    height: 60,
-    path: '/ads/banner_468x60.html',
-  },
-  skyscraper_160x600: {
-    width: 160,
-    height: 600,
-    path: '/ads/skyscraper_160x600.html',
-  },
-  skyscraper_160x300: {
-    width: 160,
-    height: 300,
-    path: '/ads/skyscraper_160x300.html',
-  },
+const SLOT_CONFIGS: Record<AdSlotType, { key: string; width: number; height: number }> = {
+  leaderboard_728x90: { key: '1a3b227a010318dbb7d14d98429feb19', width: 728, height: 90 },
+  mobile_320x50: { key: '2c8c62d0a93aa8b9c0e679da8233110e', width: 320, height: 50 },
+  banner_468x60: { key: '3277cebc283bc249d801a5f60b657736', width: 468, height: 60 },
+  rectangle_300x250: { key: '6c97f9f681c8897b60d177725efce083', width: 300, height: 250 },
+  skyscraper_160x600: { key: '000d815dba9b930fdb4a4fcd4581e4ca', width: 160, height: 600 },
+  skyscraper_160x300: { key: '000d815dba9b930fdb4a4fcd4581e4ca', width: 160, height: 300 },
 };
 
 export const AdBanner: React.FC<AdBannerProps> = ({ slot, className = '' }) => {
-  const config = AD_DIMENSIONS[slot];
+  const config = SLOT_CONFIGS[slot] || SLOT_CONFIGS['rectangle_300x250'];
 
-  if (!config) return null;
+  const srcDoc = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    html, body { margin: 0; padding: 0; overflow: hidden; background: transparent; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <script type="text/javascript">
+    atOptions = {
+      'key' : '${config.key}',
+      'format' : 'iframe',
+      'height' : ${config.height},
+      'width' : ${config.width},
+      'params' : {}
+    };
+  </script>
+  <script type="text/javascript" src="https://dependedunmoved.com/${config.key}/invoke.js"></script>
+</body>
+</html>`;
 
   return (
     <div className={`flex items-center justify-center overflow-hidden ${className}`}>
       <iframe
-        title={`adsterra-${slot}`}
-        src={config.path}
+        srcDoc={srcDoc}
         width={config.width}
         height={config.height}
-        scrolling="no"
-        frameBorder="0"
-        className="border-0 overflow-hidden bg-transparent"
-        style={{
-          width: `${config.width}px`,
-          height: `${config.height}px`,
-          maxWidth: '100%',
-          display: 'block'
-        }}
+        style={{ border: 'none', overflow: 'hidden', background: 'transparent' }}
+        title={`Adsterra ${slot}`}
+        className="max-w-full"
       />
     </div>
   );
 };
-
-

@@ -12,7 +12,7 @@ export const DesktopSkyscraperAds: React.FC = () => {
       {leftVisible && (
         <aside 
           aria-label="Sponsored Advertisement"
-          className="hidden 2xl:flex fixed left-2 top-20 z-40 flex-col items-center animate-fade-in"
+          className="hidden xl:flex fixed left-2 top-24 z-30 flex-col items-center animate-fade-in"
         >
           <div className="flex justify-end w-full mb-0.5">
             <button
@@ -31,7 +31,7 @@ export const DesktopSkyscraperAds: React.FC = () => {
       {rightVisible && (
         <aside 
           aria-label="Sponsored Advertisement"
-          className="hidden 2xl:flex fixed right-2 top-20 z-40 flex-col items-center animate-fade-in"
+          className="hidden xl:flex fixed right-2 top-24 z-30 flex-col items-center animate-fade-in"
         >
           <div className="flex justify-end w-full mb-0.5">
             <button
